@@ -1,0 +1,14 @@
+==add directional weakness decorator to monsters==
+something like
+NewDirectionalWeakness(NewmonsterDecorator)
+
+==add BattleAnim==
+move the img within card to replace decorator
+
+==finish combat system==
+add weapon
+
+==add description page==
+
+==more content==
+> Reward
