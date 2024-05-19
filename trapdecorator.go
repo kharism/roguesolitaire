@@ -38,7 +38,7 @@ func (t *SpikeTrapDecorator) OnClick(state *MainScene, source Card) {
 	idxX, idxY := PixelToIndex(int(posX), int(posY))
 	state.CharacterCard.AddAnimation(core.NewMoveAnimationFromParam(core.MoveParam{Tx: posX, Ty: posY, Speed: CARD_MOVE_SPEED}))
 	// k.OnAccquire(state)
-	state.Character.Hp -= t.Hp
+	state.Character.TakeDirectDamage(1)
 	state.zones[idxY][idxX] = state.CharacterCard
 	newCard := generator.GenerateCard()
 	newCard.(*BaseCard).SetPos(float64(BORDER_X[PLAYER_IDX_X]), float64(BORDER_Y[PLAYER_IDX_Y]))

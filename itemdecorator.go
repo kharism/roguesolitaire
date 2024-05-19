@@ -34,9 +34,10 @@ const meat_img_length = 3
 
 type OnAccquireFunc func(*MainScene)
 type ItemDecorator struct {
-	Name       string
-	image      *ebiten.Image
-	OnAccquire OnAccquireFunc
+	Name        string
+	image       *ebiten.Image
+	OnAccquire  OnAccquireFunc
+	Description string
 }
 
 func GenerateAddCoinFunc(Amount int) OnAccquireFunc {
@@ -84,7 +85,10 @@ func NewCoinDecorator() CardDecorator {
 	// 	imgReader := bytes.NewReader(CoinImage)
 	// 	coinImg, _, _ = ebitenutil.NewImageFromReader(imgReader)
 	// }
-	return &ItemDecorator{image: coinImg, Name: "Coin", OnAccquire: GenerateAddCoinFunc(1)}
+	return &ItemDecorator{image: coinImg, Name: "Coin", OnAccquire: GenerateAddCoinFunc(1), Description: "Add 1 gold coin"}
+}
+func (c *ItemDecorator) GetDescription() string {
+	return c.Description
 }
 func NewMedPotionDecorator() CardDecorator {
 	// if potion1 == nil {
@@ -92,8 +96,9 @@ func NewMedPotionDecorator() CardDecorator {
 	// 	potion1, _, _ = ebitenutil.NewImageFromReader(imgReader)
 	// }
 	return &ItemDecorator{image: potion1, Name: "Red\nPotion(m)", OnAccquire: func(s *MainScene) {
-		s.Character.Hp += 4
-	}}
+		// s.Character.TakeDamage(-3)
+		s.Character.TakeDirectDamage(-4)
+	}, Description: "Recover 4 HP"}
 }
 func NewLightPotionDecorator() CardDecorator {
 	// if potion1 == nil {
@@ -101,16 +106,16 @@ func NewLightPotionDecorator() CardDecorator {
 	// 	potion1, _, _ = ebitenutil.NewImageFromReader(imgReader)
 	// }
 	return &ItemDecorator{image: potion1, Name: "Red\nPotion(s)", OnAccquire: func(s *MainScene) {
-		s.Character.Hp += 2
-	}}
+		s.Character.TakeDirectDamage(-2)
+	}, Description: "recover 2 HP"}
 }
 func NewMeat() CardDecorator {
 	idx := rand.Int() % meat_img_length
 
 	SliceIdxImg := meat.SubImage(image.Rect(64*idx, 0, 64*(idx+1), 64))
 	return &ItemDecorator{image: SliceIdxImg.(*ebiten.Image), Name: "Meat", OnAccquire: func(s *MainScene) {
-		s.Character.Hp += 1
-	}}
+		s.Character.TakeDirectDamage(-1)
+	}, Description: "Recover 1 HP"}
 }
 func (k *ItemDecorator) Draw(card *ebiten.Image) {
 	opt := ebiten.DrawImageOptions{}

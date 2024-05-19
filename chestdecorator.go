@@ -36,7 +36,9 @@ func NewChestDecorator() CardDecorator {
 	firstFrame := chestImg.SubImage(rect)
 	return &ChestDecorator{image: firstFrame.(*ebiten.Image)}
 }
-
+func (c *ChestDecorator) GetDescription() string {
+	return "Click to open chest and find treasure"
+}
 func (c *ChestDecorator) Update() error {
 	if c.isAnim {
 		c.counter += 1

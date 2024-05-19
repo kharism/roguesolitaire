@@ -6,6 +6,7 @@ import (
 	"fmt"
 	_ "image/png"
 	"log"
+	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -36,8 +37,21 @@ type CharacterDecorator struct {
 	Name        string
 	image       *ebiten.Image
 	OnClickFunc OnInteractFunction
+	OnDefeat    OnDefeatFunc
+	Description string
+}
+
+type CharacterInterface interface {
+	// take direct damage ignoring loadout
+	TakeDirectDamage(int)
+	// take damage but still putting loadout into consideration
+	TakeDamage(int)
+	Draw(card *ebiten.Image)
+
+	DoBattle(*CharacterDecorator, *MainScene)
 }
 type OnInteractFunction func(*MainScene, Card)
+type OnDefeatFunc func(*MainScene, Card)
 
 func init() {
 	s, err := text.NewGoTextFaceSource(bytes.NewReader(PixelFontTTF))
@@ -62,33 +76,56 @@ func init() {
 		skeletonImg, _, _ = ebitenutil.NewImageFromReader(imgReader)
 	}
 }
-
+func (d *CharacterDecorator) TakeDirectDamage(dmg int) {
+	d.Hp -= dmg
+	if d.Hp <= 1 {
+		os.Exit(0)
+	}
+}
+func (d *CharacterDecorator) TakeDamage(dmg int) {
+	// the same with take damage
+	d.Hp -= dmg
+	if d.Hp <= 1 {
+		os.Exit(0)
+	}
+}
+func (d *CharacterDecorator) DoBattle(opp *CharacterDecorator, scene *MainScene) {
+	d.TakeDamage(opp.Hp)
+}
 func NewKnightDecor() CardDecorator {
 
 	return &CharacterDecorator{Hp: 10, image: knightImg, Name: "Knight", OnClickFunc: func(s *MainScene, c Card) {
 
-	}}
+	}, Description: "Your Character"}
 }
 
+// return a function that handle
 func GenerateCombat(damage int) func(*MainScene, Card) {
 	return func(s *MainScene, source Card) {
 		// posX, posY := source.(*BaseCard).GetPos()
 		// idxX, idxY := PixelToIndex(int(posX), int(posY))
-		s.Character.Hp -= damage
+		// s.Character.Hp -= damage
+		s.Character.DoBattle(source.(*BaseCard).decorators[0].(*CharacterDecorator), s)
 		// jj := rwdGenerator.GenerateReward(0)
-		source.(*BaseCard).decorators[0] = rwdGenerator.GenerateReward(0)
+		source.(*BaseCard).decorators[0].(*CharacterDecorator).OnDefeat(s, source)
 	}
+}
+func GenerateReward(tier int) func(*MainScene, Card) {
+	return func(s *MainScene, source Card) {
+		source.(*BaseCard).decorators[0] = rwdGenerator.GenerateReward(tier)
+	}
+
 }
 func NewGoblinDecor() CardDecorator {
 
-	return &CharacterDecorator{Hp: 3, image: goblinImg, Name: "Goblin", OnClickFunc: GenerateCombat(3)}
+	return &CharacterDecorator{Hp: 3, image: goblinImg, Name: "Goblin", OnDefeat: GenerateReward(0), OnClickFunc: GenerateCombat(3), Description: "A small goblin"}
 }
 func NewSkeletonDecor() CardDecorator {
 	if goblinImg == nil {
 		imgReader := bytes.NewReader(SkeletonImage)
 		skeletonImg, _, _ = ebitenutil.NewImageFromReader(imgReader)
 	}
-	return &CharacterDecorator{Hp: 1, image: skeletonImg, Name: "Skeltn", OnClickFunc: GenerateCombat(1)}
+	return &CharacterDecorator{Hp: 1, image: skeletonImg, Name: "Skeltn", OnClickFunc: GenerateCombat(1), Description: "A small Skeleton"}
 }
 func (k *CharacterDecorator) Update() error {
 	return nil
@@ -96,15 +133,21 @@ func (k *CharacterDecorator) Update() error {
 func (k *CharacterDecorator) GetType() CardType {
 	return CARD_TYPE_CHARACTER
 }
+
 func (k *CharacterDecorator) OnClick(state *MainScene, source Card) {
 	// return CARD_TYPE_CHARACTER
 	k.OnClickFunc(state, source)
+}
+func (k *CharacterDecorator) GetDescription() string {
+	return k.Description
 }
 func (k *CharacterDecorator) Draw(card *ebiten.Image) {
 	opt := ebiten.DrawImageOptions{}
 	opt.GeoM.Translate(10, 50)
 	txtOpt := text.DrawOptions{}
-	txtOpt.GeoM.Translate(50, 0)
+	txtOpt.GeoM.Scale(0.7, 0.7)
+	txtOpt.GeoM.Translate(55, 6)
+
 	txtOpt.ColorScale.ScaleWithColor(RED)
 	text.Draw(card, fmt.Sprintf("%d", k.Hp), face, &txtOpt)
 	// txtOpt.GeoM.Reset()

@@ -20,7 +20,7 @@ const (
 	CARD_TYPE_OTHER
 )
 
-//go:embed assets/img/cardbg.png
+//go:embed assets/img/card_bg.png
 var BASE_IMG []byte
 var baseCard *ebiten.Image
 
@@ -39,6 +39,7 @@ type Card interface {
 	AddDecorator(CardDecorator)
 	RemoveDecorator(CardDecorator)
 	OnClick(*MainScene)
+	GetDescription() string
 }
 
 // decorate card, add stuff on top of base card
@@ -48,6 +49,7 @@ type CardDecorator interface {
 	Draw(card *ebiten.Image)
 	GetType() CardType
 	OnClick(mainScene *MainScene, source Card)
+	GetDescription() string
 }
 type PlayerMoveListener interface {
 	OnPlayerMove(Card, MainScene)
@@ -85,6 +87,12 @@ var (
 		R: 255,
 		G: 0,
 		B: 0,
+		A: 255,
+	}
+	BLUE = color.RGBA{
+		R: 0,
+		G: 0,
+		B: 255,
 		A: 255,
 	}
 )
@@ -131,4 +139,11 @@ func (c *BaseCard) OnClick(state *MainScene) {
 	if len(c.decorators) > 0 {
 		c.decorators[0].OnClick(state, c)
 	}
+}
+func (c *BaseCard) GetDescription() string {
+	output := ""
+	for _, v := range c.decorators {
+		output += v.GetDescription() + "\n"
+	}
+	return output
 }

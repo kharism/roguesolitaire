@@ -34,9 +34,9 @@ func (r *rewardGenerator) GenerateReward(tierLevel int) CardDecorator {
 		id := rand.Int() % 3
 		switch id {
 		case 0:
-			return NewMeat() //NewCoinDecorator()
+			return NewCoinDecorator()
 		case 1:
-			return NewMeat() //NewLightPotionDecorator()
+			return NewLightPotionDecorator()
 		case 2:
 			return NewMeat()
 		}

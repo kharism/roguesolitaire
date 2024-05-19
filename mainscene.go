@@ -1,23 +1,45 @@
 package main
 
 import (
+	"bytes"
+	"image"
 	"math"
 	"math/rand"
 
+	_ "embed"
+
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/joelschutz/stagehand"
 )
+
+//go:embed assets/img/infobg.png
+var InfoBg []byte
+var infobg *ebiten.Image
+
+//go:embed assets/img/tilebg.png
+var tile []byte
+var tileImg *ebiten.Image
+
+func init() {
+	imgReader := bytes.NewReader(InfoBg)
+	infobg, _, _ = ebitenutil.NewImageFromReader(imgReader)
+	imgReader = bytes.NewReader(tile)
+	tileImg, _, _ = ebitenutil.NewImageFromReader(imgReader)
+}
 
 type MainScene struct {
 	director      *stagehand.SceneDirector[MyState]
 	State         *MyState
-	Character     *CharacterDecorator
+	Character     CharacterInterface
 	CharacterCard *BaseCard
 	CharacterPosX int
 	CharacterPosY int
 	touchIDs      []ebiten.TouchID
 	zones         [3][3]*BaseCard
+	CurDesc       string
 }
 
 func NewMainScene() *MainScene {
@@ -46,16 +68,20 @@ func PlayerCanInteractHere(idxX, idxY int) bool {
 	return dist == 1
 }
 func (m *MainScene) Update() error {
+	mouseX, mouseY := ebiten.CursorPosition()
 	// if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 	// 	fmt.Println(inpututil.MouseButtonPressDuration(ebiten.MouseButtonLeft))
 	// }
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
-		mouseX, mouseY := ebiten.CursorPosition()
 		idxX, idxY := PixelToIndex(mouseX, mouseY)
 		if PlayerCanInteractHere(idxX, idxY) {
 			m.zones[idxY][idxX].OnClick(m)
 		}
 
+	}
+	cardIdx, cardIdy := PixelToIndex(mouseX, mouseY)
+	if cardIdx >= 0 && cardIdy >= 0 {
+		m.CurDesc = m.zones[cardIdy][cardIdx].GetDescription()
 	}
 	for idx, _ := range m.zones {
 		for idx2, _ := range m.zones[idx] {
@@ -63,6 +89,7 @@ func (m *MainScene) Update() error {
 			if err != nil {
 				return err
 			}
+
 		}
 	}
 	return nil
@@ -87,8 +114,58 @@ var (
 	PLAYER_IDX_X int
 	PLAYER_IDX_Y int
 )
+var (
+	bgInfoStartX = BOARD_START_X + (BASE_CARD_WIDTH*SCALE_CARD)*3 + MARGIN_X*2 + 30
+	bgInfoStartY = BOARD_START_Y
+)
+
+func (m *MainScene) DrawInfoBg(screen *ebiten.Image) {
+	//top parts
+	opts := ebiten.DrawImageOptions{}
+	opts.GeoM.Scale(1.2, 1)
+
+	opts.GeoM.Translate(bgInfoStartX, float64(bgInfoStartY))
+	screen.DrawImage(infobg, &opts)
+	opts.GeoM.Reset()
+	// opts.GeoM.Rotate(math.Pi)
+	opts.GeoM.Scale(1.2, -1)
+	opts.GeoM.Translate(bgInfoStartX, float64(bgInfoStartY+35+250)+10)
+	screen.DrawImage(infobg, &opts)
+	// center parts
+	midPart := infobg.SubImage(image.Rect(0, 20, 251, 30))
+	opts.GeoM.Reset()
+	opts.GeoM.Scale(1.2, 25)
+	opts.GeoM.Translate(bgInfoStartX, float64(bgInfoStartY)+35)
+	screen.DrawImage(midPart.(*ebiten.Image), &opts)
+
+}
+func (m *MainScene) DrawBg(screen *ebiten.Image) {
+	posX := 0
+	posY := 0
+	opt := ebiten.DrawImageOptions{}
+	for i := 0; i < 10; i++ {
+		posX = 0
+		for j := 0; j < 10; j++ {
+			opt.GeoM.Reset()
+			opt.GeoM.Translate(float64(posX), float64(posY))
+			screen.DrawImage(tileImg, &opt)
+			posX += 64
+		}
+		posY += 64
+	}
+}
+func (m *MainScene) DrawDesc(screen *ebiten.Image) {
+	txtOpt := text.DrawOptions{}
+	txtOpt.GeoM.Scale(0.7, 0.7)
+	txtOpt.GeoM.Translate(bgInfoStartX+5, float64(bgInfoStartY)+35)
+
+	txtOpt.ColorScale.ScaleWithColor(RED)
+	text.Draw(screen, m.CurDesc, face, &txtOpt)
+}
 
 func (m *MainScene) Draw(screen *ebiten.Image) {
+	m.DrawBg(screen)
+	m.DrawInfoBg(screen)
 	for idx, _ := range m.zones {
 		for idx2, b := range m.zones[idx] {
 			if idx == PLAYER_IDX_Y && idx2 == PLAYER_IDX_X {
@@ -96,6 +173,9 @@ func (m *MainScene) Draw(screen *ebiten.Image) {
 			}
 			b.Draw(screen)
 		}
+	}
+	if m.CurDesc != "" {
+		m.DrawDesc(screen)
 	}
 	m.zones[PLAYER_IDX_Y][PLAYER_IDX_X].Draw(screen)
 }
@@ -116,8 +196,9 @@ func (s *MainScene) Load(state MyState, director stagehand.SceneController[MySta
 			yPos := BOARD_START_Y + BASE_CARD_HEIGHT*SCALE_CARD*idx + idx*MARGIN_Y
 			if idx == 1 && idx2 == 1 {
 				pp := NewKnightDecor()
-				s.Character = pp.(*CharacterDecorator)
-				s.zones[idx][idx2] = NewBaseCard([]CardDecorator{pp}).(*BaseCard)
+				SwordedKnight := NewSwordChDecorator(pp.(*CharacterDecorator), 6)
+				s.Character = SwordedKnight.(*SwordChDecorator)
+				s.zones[idx][idx2] = NewBaseCard([]CardDecorator{SwordedKnight}).(*BaseCard)
 				s.CharacterCard = s.zones[idx][idx2]
 			} else {
 				i := rand.Int() % 3
@@ -127,7 +208,8 @@ func (s *MainScene) Load(state MyState, director stagehand.SceneController[MySta
 					s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewSpikeTrapDecorator()}).(*BaseCard)
 					// s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewChestDecorator()}).(*BaseCard)
 				} else if i == 2 {
-					s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewSkeletonDecor()}).(*BaseCard)
+					s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewGoblinDecor()}).(*BaseCard)
+					// s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewSwordDecorator()}).(*BaseCard)
 				}
 
 			}
