@@ -44,6 +44,7 @@ func NewSwordDecorator() CardDecorator {
 	j := &ItemDecorator{image: imgrotated, Name: "Sword", OnAccquire: func(m *MainScene) {
 		if _, ok := m.Character.(*CharacterDecorator); ok {
 			m.Character = NewSwordChDecorator(m.Character, 10).(*SwordChDecorator)
+			m.zones[PLAYER_IDX_Y][PLAYER_IDX_X].decorators[0] = m.Character.(*SwordChDecorator)
 		} else if vv, ok := m.Character.(*SwordChDecorator); ok {
 			vv.durability += 10
 			m.Character = vv
@@ -78,6 +79,7 @@ func (h *SwordChDecorator) Draw(card *ebiten.Image) {
 func (c *SwordChDecorator) DoBattle(opp *CharacterDecorator, scene *MainScene) {
 	if opp.Hp <= c.durability {
 		c.durability -= opp.Hp
+		opp.Hp = 0
 	} else {
 		opp.Hp -= c.durability
 		c.durability = 0

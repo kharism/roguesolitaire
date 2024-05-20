@@ -91,6 +91,7 @@ func (d *CharacterDecorator) TakeDamage(dmg int) {
 }
 func (d *CharacterDecorator) DoBattle(opp *CharacterDecorator, scene *MainScene) {
 	d.TakeDamage(opp.Hp)
+	opp.Hp = 0
 }
 func NewKnightDecor() CardDecorator {
 
@@ -107,7 +108,10 @@ func GenerateCombat(damage int) func(*MainScene, Card) {
 		// s.Character.Hp -= damage
 		s.Character.DoBattle(source.(*BaseCard).decorators[0].(*CharacterDecorator), s)
 		// jj := rwdGenerator.GenerateReward(0)
-		source.(*BaseCard).decorators[0].(*CharacterDecorator).OnDefeat(s, source)
+		if source.(*BaseCard).decorators[0].(*CharacterDecorator).Hp <= 0 {
+			source.(*BaseCard).decorators[0].(*CharacterDecorator).OnDefeat(s, source)
+		}
+
 	}
 }
 func GenerateReward(tier int) func(*MainScene, Card) {
@@ -118,14 +122,20 @@ func GenerateReward(tier int) func(*MainScene, Card) {
 }
 func NewGoblinDecor() CardDecorator {
 
-	return &CharacterDecorator{Hp: 3, image: goblinImg, Name: "Goblin", OnDefeat: GenerateReward(0), OnClickFunc: GenerateCombat(3), Description: "A small goblin"}
+	return &CharacterDecorator{Hp: 3, image: goblinImg,
+		Name: "Goblin", OnDefeat: GenerateReward(0), OnClickFunc: GenerateCombat(3), Description: "A small goblin"}
 }
 func NewSkeletonDecor() CardDecorator {
 	if goblinImg == nil {
 		imgReader := bytes.NewReader(SkeletonImage)
 		skeletonImg, _, _ = ebitenutil.NewImageFromReader(imgReader)
 	}
-	return &CharacterDecorator{Hp: 1, image: skeletonImg, Name: "Skeltn", OnClickFunc: GenerateCombat(1), Description: "A small Skeleton"}
+	return &CharacterDecorator{
+		Hp: 1, image: skeletonImg, Name: "Skeltn",
+		OnClickFunc: GenerateCombat(1),
+		OnDefeat:    GenerateReward(0),
+		Description: "A small Skeleton",
+	}
 }
 func (k *CharacterDecorator) Update() error {
 	return nil
