@@ -196,7 +196,7 @@ func (s *MainScene) Load(state MyState, director stagehand.SceneController[MySta
 			yPos := BOARD_START_Y + BASE_CARD_HEIGHT*SCALE_CARD*idx + idx*MARGIN_Y
 			if idx == 1 && idx2 == 1 {
 				pp := NewKnightDecor()
-				SwordedKnight := NewSwordChDecorator(pp.(*CharacterDecorator), 2)
+				SwordedKnight := NewSwordChDecorator(pp.(*CharacterDecorator), 10)
 				s.Character = SwordedKnight.(*SwordChDecorator)
 				s.zones[idx][idx2] = NewBaseCard([]CardDecorator{SwordedKnight}).(*BaseCard)
 				s.CharacterCard = s.zones[idx][idx2]
