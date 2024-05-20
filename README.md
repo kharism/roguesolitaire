@@ -17,3 +17,4 @@ git clone ghttps://github.com/kharism/roguesolitaire.git // download the code
 cd roguesolitaire
 go run *.go
 ```
+![screenshoot](img/screenshoot.jpg)
