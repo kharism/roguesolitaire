@@ -158,7 +158,7 @@ func (m *MainScene) DrawDesc(screen *ebiten.Image) {
 	txtOpt := text.DrawOptions{}
 	txtOpt.GeoM.Scale(0.7, 0.7)
 	txtOpt.GeoM.Translate(bgInfoStartX+5, float64(bgInfoStartY)+35)
-
+	txtOpt.LineSpacing = 20
 	txtOpt.ColorScale.ScaleWithColor(RED)
 	text.Draw(screen, m.CurDesc, face, &txtOpt)
 }

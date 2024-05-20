@@ -2,13 +2,13 @@ module github.com/kharism/roguesolitaire
 
 go 1.22.0
 
-replace(
-	github.com/kharism/hanashi => ../hanashi
-)
+// replace(
+// 	github.com/kharism/hanashi => ../hanashi
+// )
 
 require (
 	github.com/hajimehoshi/ebiten/v2 v2.7.3
-	github.com/kharism/hanashi v0.0.0-20240506135002-d8096640d831
+	github.com/kharism/hanashi v0.0.0-20240520022628-67474ff6c848
 )
 
 require (

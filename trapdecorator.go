@@ -48,5 +48,5 @@ func (t *SpikeTrapDecorator) OnClick(state *MainScene, source Card) {
 }
 
 func NewSpikeTrapDecorator() CardDecorator {
-	return &SpikeTrapDecorator{CharacterDecorator: &CharacterDecorator{image: spike, Name: "Spike", Hp: 1}}
+	return &SpikeTrapDecorator{CharacterDecorator: &CharacterDecorator{image: spike, Name: "Spike", Hp: 1, Description: "Do 1 Direct damage\nregardless of loadout"}}
 }

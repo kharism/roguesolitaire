@@ -85,7 +85,7 @@ func (d *CharacterDecorator) TakeDirectDamage(dmg int) {
 func (d *CharacterDecorator) TakeDamage(dmg int) {
 	// the same with take damage
 	d.Hp -= dmg
-	if d.Hp <= 1 {
+	if d.Hp <= 0 {
 		os.Exit(0)
 	}
 }
@@ -95,7 +95,7 @@ func (d *CharacterDecorator) DoBattle(opp *CharacterDecorator, scene *MainScene)
 }
 func NewKnightDecor() CardDecorator {
 
-	return &CharacterDecorator{Hp: 10, image: knightImg, Name: "Knight", OnClickFunc: func(s *MainScene, c Card) {
+	return &CharacterDecorator{Hp: 2, image: knightImg, Name: "Knight", OnClickFunc: func(s *MainScene, c Card) {
 
 	}, Description: "Your Character"}
 }
