@@ -40,7 +40,7 @@ func (t *SpikeTrapDecorator) OnClick(state *MainScene, source Card) {
 	// k.OnAccquire(state)
 	state.Character.TakeDirectDamage(1)
 	state.zones[idxY][idxX] = state.CharacterCard
-	newCard := generator.GenerateCard()
+	newCard := generator.GenerateCard(state)
 	newCard.(*BaseCard).SetPos(float64(BORDER_X[PLAYER_IDX_X]), float64(BORDER_Y[PLAYER_IDX_Y]))
 	state.zones[PLAYER_IDX_Y][PLAYER_IDX_X] = newCard.(*BaseCard)
 	PLAYER_IDX_X = idxX

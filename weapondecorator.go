@@ -43,10 +43,10 @@ func NewSwordDecorator() CardDecorator {
 	imgrotated.DrawImage(swordImg, &opts)
 	j := &ItemDecorator{image: imgrotated, Name: "Sword", OnAccquire: func(m *MainScene) {
 		if _, ok := m.Character.(*CharacterDecorator); ok {
-			m.Character = NewSwordChDecorator(m.Character, 10).(*SwordChDecorator)
+			m.Character = NewSwordChDecorator(m.Character, 5).(*SwordChDecorator)
 			m.zones[PLAYER_IDX_Y][PLAYER_IDX_X].decorators[0] = m.Character.(*SwordChDecorator)
 		} else if vv, ok := m.Character.(*SwordChDecorator); ok {
-			vv.durability += 10
+			vv.durability += 5
 			m.Character = vv
 		}
 

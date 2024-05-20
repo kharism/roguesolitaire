@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"image"
 	"math"
 	"math/rand"
@@ -117,6 +118,9 @@ var (
 var (
 	bgInfoStartX = BOARD_START_X + (BASE_CARD_WIDTH*SCALE_CARD)*3 + MARGIN_X*2 + 30
 	bgInfoStartY = BOARD_START_Y
+
+	bgInfo2StartX = bgInfoStartX
+	bgInfo2StartY = bgInfoStartY + 300
 )
 
 func (m *MainScene) DrawInfoBg(screen *ebiten.Image) {
@@ -136,6 +140,24 @@ func (m *MainScene) DrawInfoBg(screen *ebiten.Image) {
 	opts.GeoM.Reset()
 	opts.GeoM.Scale(1.2, 25)
 	opts.GeoM.Translate(bgInfoStartX, float64(bgInfoStartY)+35)
+	screen.DrawImage(midPart.(*ebiten.Image), &opts)
+
+}
+func (m *MainScene) DrawInfoBg2(screen *ebiten.Image) {
+	opts := ebiten.DrawImageOptions{}
+	opts.GeoM.Scale(1.2, 1)
+
+	opts.GeoM.Translate(bgInfo2StartX, float64(bgInfo2StartY))
+	screen.DrawImage(infobg, &opts)
+	opts.GeoM.Reset()
+
+	opts.GeoM.Scale(1.2, -1)
+	opts.GeoM.Translate(bgInfo2StartX, float64(bgInfo2StartY+35+70))
+	screen.DrawImage(infobg, &opts)
+	midPart := infobg.SubImage(image.Rect(0, 20, 251, 30))
+	opts.GeoM.Reset()
+	opts.GeoM.Scale(1.2, 5)
+	opts.GeoM.Translate(bgInfo2StartX, float64(bgInfo2StartY)+35)
 	screen.DrawImage(midPart.(*ebiten.Image), &opts)
 
 }
@@ -178,6 +200,14 @@ func (m *MainScene) Draw(screen *ebiten.Image) {
 		m.DrawDesc(screen)
 	}
 	m.zones[PLAYER_IDX_Y][PLAYER_IDX_X].Draw(screen)
+	m.DrawInfoBg2(screen)
+	opt := ebiten.DrawImageOptions{}
+	opt.GeoM.Translate(bgInfoStartX, float64(bgInfoStartY+35+250)+10)
+	screen.DrawImage(coinImg, &opt)
+	txtOpt := text.DrawOptions{}
+	txtOpt.GeoM.Translate(bgInfoStartX+60, float64(bgInfoStartY+35+250)+30)
+	txtOpt.ColorScale.ScaleWithColor(RED)
+	text.Draw(screen, fmt.Sprintf("%d", m.State.Coin), face, &txtOpt)
 }
 
 func (s *MainScene) Load(state MyState, director stagehand.SceneController[MyState]) {
@@ -196,7 +226,7 @@ func (s *MainScene) Load(state MyState, director stagehand.SceneController[MySta
 			yPos := BOARD_START_Y + BASE_CARD_HEIGHT*SCALE_CARD*idx + idx*MARGIN_Y
 			if idx == 1 && idx2 == 1 {
 				pp := NewKnightDecor()
-				SwordedKnight := NewSwordChDecorator(pp.(*CharacterDecorator), 10)
+				SwordedKnight := NewSwordChDecorator(pp.(*CharacterDecorator), 5)
 				s.Character = SwordedKnight.(*SwordChDecorator)
 				s.zones[idx][idx2] = NewBaseCard([]CardDecorator{SwordedKnight}).(*BaseCard)
 				s.CharacterCard = s.zones[idx][idx2]
@@ -208,7 +238,8 @@ func (s *MainScene) Load(state MyState, director stagehand.SceneController[MySta
 					s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewSpikeTrapDecorator()}).(*BaseCard)
 					// s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewChestDecorator()}).(*BaseCard)
 				} else if i == 2 {
-					s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewGoblinDecor()}).(*BaseCard)
+					// s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewGoblinDecor()}).(*BaseCard)
+					s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewHopGoblinDecor()}).(*BaseCard)
 					// s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewSwordDecorator()}).(*BaseCard)
 				}
 

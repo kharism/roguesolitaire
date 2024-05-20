@@ -52,7 +52,7 @@ func (k *ItemDecorator) OnClick(state *MainScene, source Card) {
 	state.CharacterCard.AddAnimation(core.NewMoveAnimationFromParam(core.MoveParam{Tx: posX, Ty: posY, Speed: CARD_MOVE_SPEED}))
 	k.OnAccquire(state)
 	state.zones[idxY][idxX] = state.CharacterCard
-	newCard := generator.GenerateCard()
+	newCard := generator.GenerateCard(state)
 	newCard.(*BaseCard).SetPos(float64(BORDER_X[PLAYER_IDX_X]), float64(BORDER_Y[PLAYER_IDX_Y]))
 	state.zones[PLAYER_IDX_Y][PLAYER_IDX_X] = newCard.(*BaseCard)
 	PLAYER_IDX_X = idxX
