@@ -181,12 +181,16 @@ func (k *CharacterDecorator) Draw(card *ebiten.Image) {
 
 	txtOpt := text.DrawOptions{}
 	txtOpt.GeoM.Scale(0.7, 0.7)
-	txtOpt.GeoM.Translate(55, 6)
-
+	txtOpt.GeoM.Translate(80, 6)
+	txtOpt.PrimaryAlign = text.AlignEnd
 	txtOpt.ColorScale.ScaleWithColor(RED)
 	text.Draw(card, fmt.Sprintf("%d", k.Hp), face, &txtOpt)
 	// txtOpt.GeoM.Reset()
-	txtOpt.GeoM.Translate(-30, 50)
+	txtOpt = text.DrawOptions{}
+	txtOpt.PrimaryAlign = text.AlignCenter
+	txtOpt.GeoM.Scale(0.7, 0.7)
+	txtOpt.GeoM.Translate(70, 56)
+
 	txtOpt.ColorScale.ScaleWithColor(RED)
 	txtOpt.GeoM.Scale(0.6, 0.6)
 	text.Draw(card, k.Name, face, &txtOpt)

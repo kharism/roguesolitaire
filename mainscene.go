@@ -238,8 +238,10 @@ func (s *MainScene) Load(state MyState, director stagehand.SceneController[MySta
 					s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewSpikeTrapDecorator()}).(*BaseCard)
 					// s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewChestDecorator()}).(*BaseCard)
 				} else if i == 2 {
-					// s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewGoblinDecor()}).(*BaseCard)
-					s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewHopGoblinDecor()}).(*BaseCard)
+					// HopDecor := NewHopGoblinDecor()
+					// weakness := NewWeaknessDecorator(HopDecor, DIRECTION_UP|DIRECTION_DOWN)
+					s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewGoblinDecor()}).(*BaseCard)
+					// s.zones[idx][idx2] = NewBaseCard([]CardDecorator{weakness}).(*BaseCard)
 					// s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewSwordDecorator()}).(*BaseCard)
 				}
 

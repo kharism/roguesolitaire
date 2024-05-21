@@ -19,11 +19,22 @@ func (g *cardGenerator) GenerateCard(ms *MainScene) Card {
 	case 0:
 		baseCard.AddDecorator(NewCoinDecorator())
 	case 1:
+		var decor CardDecorator
 		if ms.State.Coin <= 9 {
-			baseCard.AddDecorator(NewGoblinDecor())
+			decor = NewGoblinDecor()
+			// baseCard.AddDecorator()
 		} else {
-			baseCard.AddDecorator(NewHopGoblinDecor())
+			decor = NewHopGoblinDecor()
+			// baseCard.AddDecorator()
+			h := rand.Int() % 10
+			if h <= 3 {
+				j := []byte{1, 2, 4, 8}
+				decor = NewWeaknessDecorator(decor, j[rand.Int()%len(j)])
+			}
 		}
+
+		// decor = NewWeaknessDecorator(decor, DIRECTION_UP)
+		baseCard.AddDecorator(decor)
 	case 2:
 		baseCard.AddDecorator(NewSkeletonDecor())
 	case 3:

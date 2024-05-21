@@ -115,6 +115,7 @@ func (c *BaseCard) GetImage() *ebiten.Image {
 	for _, decor := range c.decorators {
 		decor.Draw(base)
 	}
+	// base := ebiten.NewImage(BAS)
 	return base
 }
 
