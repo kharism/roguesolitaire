@@ -52,7 +52,7 @@ type CardDecorator interface {
 	GetDescription() string
 }
 type PlayerMoveListener interface {
-	OnPlayerMove(Card, MainScene)
+	OnPlayerMove(Card, *MainScene)
 }
 
 type BaseCard struct {

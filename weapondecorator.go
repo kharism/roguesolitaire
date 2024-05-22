@@ -102,10 +102,10 @@ func (c *SwordChDecorator) Update() error {
 func (c *SwordChDecorator) OnClick(s *MainScene, card Card) {
 
 }
-func (c *SwordChDecorator) TakeDamage(dmg int) {
+func (c *SwordChDecorator) TakeDamage(dmg int, s *MainScene, card Card) {
 
 	// c.chInterface.TakeDamage()
 }
-func (c *SwordChDecorator) TakeDirectDamage(dmg int) {
-	c.chInterface.TakeDirectDamage(dmg)
+func (c *SwordChDecorator) TakeDirectDamage(dmg int, s *MainScene, card Card) {
+	c.chInterface.TakeDirectDamage(dmg, s, card)
 }

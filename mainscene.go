@@ -68,6 +68,16 @@ func PlayerCanInteractHere(idxX, idxY int) bool {
 	dist := math.Abs(float64(idxX-PLAYER_IDX_X)) + math.Abs(float64(idxY-PLAYER_IDX_Y))
 	return dist == 1
 }
+func (m *MainScene) OnPlayerMove() {
+	fmt.Println("Player moves")
+	for idx, _ := range m.zones {
+		for idx2, _ := range m.zones[idx] {
+			if v, ok := m.zones[idx][idx2].decorators[0].(PlayerMoveListener); ok {
+				v.OnPlayerMove(m.zones[idx][idx2], m)
+			}
+		}
+	}
+}
 func (m *MainScene) Update() error {
 	mouseX, mouseY := ebiten.CursorPosition()
 	// if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
@@ -230,13 +240,16 @@ func (s *MainScene) Load(state MyState, director stagehand.SceneController[MySta
 				s.Character = SwordedKnight.(*SwordChDecorator)
 				s.zones[idx][idx2] = NewBaseCard([]CardDecorator{SwordedKnight}).(*BaseCard)
 				s.CharacterCard = s.zones[idx][idx2]
+			} else if idx == 2 && idx2 == 2 {
+				s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewBombDecorator()}).(*BaseCard)
 			} else {
 				i := rand.Int() % 3
 				if i == 0 {
 					s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewLightPotionDecorator()}).(*BaseCard)
 				} else if i == 1 {
-					s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewSpikeTrapDecorator()}).(*BaseCard)
-					// s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewChestDecorator()}).(*BaseCard)
+					// s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewBombDecorator()}).(*BaseCard)
+					// s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewSpikeTrapDecorator()}).(*BaseCard)
+					s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewChestDecorator()}).(*BaseCard)
 				} else if i == 2 {
 					// HopDecor := NewHopGoblinDecor()
 					// weakness := NewWeaknessDecorator(HopDecor, DIRECTION_UP|DIRECTION_DOWN)

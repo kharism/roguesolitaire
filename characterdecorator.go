@@ -49,9 +49,9 @@ type CharacterDecorator struct {
 
 type CharacterInterface interface {
 	// take direct damage ignoring loadout
-	TakeDirectDamage(int)
+	TakeDirectDamage(int, *MainScene, Card)
 	// take damage but still putting loadout into consideration
-	TakeDamage(int)
+	TakeDamage(int, *MainScene, Card)
 	Draw(card *ebiten.Image)
 
 	DoBattle(*CharacterDecorator, *MainScene)
@@ -87,27 +87,31 @@ func init() {
 		log.Fatal(err)
 	}
 }
-func (d *CharacterDecorator) TakeDirectDamage(dmg int) {
+func (d *CharacterDecorator) TakeDirectDamage(dmg int, s *MainScene, source Card) {
 	d.Hp -= dmg
-	if d.Hp <= 1 {
-		os.Exit(0)
+	if d.Hp <= 0 {
+		// os.Exit(0)
+		d.OnDefeat(s, source)
 	}
 }
-func (d *CharacterDecorator) TakeDamage(dmg int) {
+func (d *CharacterDecorator) TakeDamage(dmg int, s *MainScene, source Card) {
 	// the same with take damage
 	d.Hp -= dmg
 	if d.Hp <= 0 {
-		os.Exit(0)
+		// os.Exit(0)
+		d.OnDefeat(s, source)
 	}
 }
 func (d *CharacterDecorator) DoBattle(opp *CharacterDecorator, scene *MainScene) {
-	d.TakeDamage(opp.Hp)
+	d.TakeDamage(opp.Hp, scene, nil)
 	opp.Hp = 0
 }
 func NewKnightDecor() CardDecorator {
 
 	return &CharacterDecorator{Hp: 10, image: knightImg, Name: "Knight", OnClickFunc: func(s *MainScene, c Card) {
 
+	}, OnDefeat: func(*MainScene, Card) {
+		os.Exit(0)
 	}, Description: "Your Character"}
 }
 
@@ -122,7 +126,7 @@ func GenerateCombat(damage int) func(*MainScene, Card) {
 		if source.(*BaseCard).decorators[0].(*CharacterDecorator).Hp <= 0 {
 			source.(*BaseCard).decorators[0].(*CharacterDecorator).OnDefeat(s, source)
 		}
-
+		s.OnPlayerMove()
 	}
 }
 func GenerateReward(tier int) func(*MainScene, Card) {
