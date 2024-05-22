@@ -43,10 +43,10 @@ func NewSwordDecorator() CardDecorator {
 	imgrotated.DrawImage(swordImg, &opts)
 	j := &ItemDecorator{image: imgrotated, Name: "Sword", OnAccquire: func(m *MainScene) {
 		if _, ok := m.Character.(*CharacterDecorator); ok {
-			m.Character = NewSwordChDecorator(m.Character, 10).(*SwordChDecorator)
+			m.Character = NewSwordChDecorator(m.Character, 5).(*SwordChDecorator)
 			m.zones[PLAYER_IDX_Y][PLAYER_IDX_X].decorators[0] = m.Character.(*SwordChDecorator)
 		} else if vv, ok := m.Character.(*SwordChDecorator); ok {
-			vv.durability += 10
+			vv.durability += 5
 			m.Character = vv
 		}
 
@@ -102,10 +102,10 @@ func (c *SwordChDecorator) Update() error {
 func (c *SwordChDecorator) OnClick(s *MainScene, card Card) {
 
 }
-func (c *SwordChDecorator) TakeDamage(dmg int) {
+func (c *SwordChDecorator) TakeDamage(dmg int, s *MainScene, card Card) {
 
 	// c.chInterface.TakeDamage()
 }
-func (c *SwordChDecorator) TakeDirectDamage(dmg int) {
-	c.chInterface.TakeDirectDamage(dmg)
+func (c *SwordChDecorator) TakeDirectDamage(dmg int, s *MainScene, card Card) {
+	c.chInterface.TakeDirectDamage(dmg, s, card)
 }

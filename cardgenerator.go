@@ -12,14 +12,29 @@ func init() {
 	generator = cardGenerator{}
 	rwdGenerator = rewardGenerator{}
 }
-func (g *cardGenerator) GenerateCard() Card {
+func (g *cardGenerator) GenerateCard(ms *MainScene) Card {
 	baseCard := NewBaseCard([]CardDecorator{})
 	p := rand.Int() % 4
 	switch p {
 	case 0:
 		baseCard.AddDecorator(NewCoinDecorator())
 	case 1:
-		baseCard.AddDecorator(NewGoblinDecor())
+		var decor CardDecorator
+		if ms.State.Coin <= 9 {
+			decor = NewGoblinDecor()
+			// baseCard.AddDecorator()
+		} else {
+			decor = NewHopGoblinDecor()
+			// baseCard.AddDecorator()
+			h := rand.Int() % 10
+			if h <= 3 {
+				j := []byte{1, 2, 4, 8}
+				decor = NewWeaknessDecorator(decor, j[rand.Int()%len(j)])
+			}
+		}
+
+		// decor = NewWeaknessDecorator(decor, DIRECTION_UP)
+		baseCard.AddDecorator(decor)
 	case 2:
 		baseCard.AddDecorator(NewSkeletonDecor())
 	case 3:

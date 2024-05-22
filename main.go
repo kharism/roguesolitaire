@@ -9,6 +9,11 @@ import (
 
 type Game struct{}
 
+const (
+	TriggerToMain stagehand.SceneTransitionTrigger = iota
+	TriggerToMenu
+)
+
 var knight CardDecorator
 var card Card
 
@@ -36,13 +41,21 @@ func main() {
 	ebiten.SetWindowSize(640, 480)
 	ebiten.SetWindowTitle("Hello, World!")
 	scene1 := &MainScene{}
+	menuScene := &MenuScene{}
 	state := MyState{
 		PlayerCharacter: NewKnightDecor(),
 	}
-
-	ruleSet := make(map[stagehand.Scene[MyState]][]stagehand.Directive[MyState])
-
-	manager := stagehand.NewSceneDirector[MyState](scene1, state, ruleSet)
+	trans := stagehand.NewSlideTransition[MyState](stagehand.LeftToRight, 0.05)
+	// ruleSet := make(map[stagehand.Scene[MyState]][]stagehand.Directive[MyState])
+	ruleSet := map[stagehand.Scene[MyState]][]stagehand.Directive[MyState]{
+		menuScene: []stagehand.Directive[MyState]{
+			stagehand.Directive[MyState]{Dest: scene1, Trigger: TriggerToMain, Transition: trans},
+		},
+		scene1: []stagehand.Directive[MyState]{
+			stagehand.Directive[MyState]{Dest: menuScene, Trigger: TriggerToMenu, Transition: trans},
+		},
+	}
+	manager := stagehand.NewSceneDirector[MyState](menuScene, state, ruleSet)
 
 	if err := ebiten.RunGame(manager); err != nil {
 		log.Fatal(err)

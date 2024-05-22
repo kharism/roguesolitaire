@@ -6,6 +6,7 @@ import (
 	"fmt"
 	_ "image/png"
 	"log"
+	"math/rand"
 	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -25,12 +26,16 @@ var PixelFontTTF []byte
 //go:embed assets/img/skeleton.png
 var SkeletonImage []byte
 
+//go:embed shaders/dakka.kage
+var DakkaShader []byte
+
 var PixelFont *text.GoTextFaceSource
 
 var knightImg *ebiten.Image
 var goblinImg *ebiten.Image
 var skeletonImg *ebiten.Image
 var face *text.GoTextFace
+var dakkaShader *ebiten.Shader
 
 type CharacterDecorator struct {
 	Hp          int
@@ -39,13 +44,14 @@ type CharacterDecorator struct {
 	OnClickFunc OnInteractFunction
 	OnDefeat    OnDefeatFunc
 	Description string
+	shader      *ebiten.Shader
 }
 
 type CharacterInterface interface {
 	// take direct damage ignoring loadout
-	TakeDirectDamage(int)
+	TakeDirectDamage(int, *MainScene, Card)
 	// take damage but still putting loadout into consideration
-	TakeDamage(int)
+	TakeDamage(int, *MainScene, Card)
 	Draw(card *ebiten.Image)
 
 	DoBattle(*CharacterDecorator, *MainScene)
@@ -75,28 +81,37 @@ func init() {
 		imgReader := bytes.NewReader(SkeletonImage)
 		skeletonImg, _, _ = ebitenutil.NewImageFromReader(imgReader)
 	}
-}
-func (d *CharacterDecorator) TakeDirectDamage(dmg int) {
-	d.Hp -= dmg
-	if d.Hp <= 1 {
-		os.Exit(0)
+	dakkaShader, err = ebiten.NewShader(DakkaShader)
+	if err != nil {
+		fmt.Println(err.Error())
+		log.Fatal(err)
 	}
 }
-func (d *CharacterDecorator) TakeDamage(dmg int) {
+func (d *CharacterDecorator) TakeDirectDamage(dmg int, s *MainScene, source Card) {
+	d.Hp -= dmg
+	if d.Hp <= 0 {
+		// os.Exit(0)
+		d.OnDefeat(s, source)
+	}
+}
+func (d *CharacterDecorator) TakeDamage(dmg int, s *MainScene, source Card) {
 	// the same with take damage
 	d.Hp -= dmg
 	if d.Hp <= 0 {
-		os.Exit(0)
+		// os.Exit(0)
+		d.OnDefeat(s, source)
 	}
 }
 func (d *CharacterDecorator) DoBattle(opp *CharacterDecorator, scene *MainScene) {
-	d.TakeDamage(opp.Hp)
+	d.TakeDamage(opp.Hp, scene, nil)
 	opp.Hp = 0
 }
 func NewKnightDecor() CardDecorator {
 
 	return &CharacterDecorator{Hp: 10, image: knightImg, Name: "Knight", OnClickFunc: func(s *MainScene, c Card) {
 
+	}, OnDefeat: func(*MainScene, Card) {
+		os.Exit(0)
 	}, Description: "Your Character"}
 }
 
@@ -111,7 +126,7 @@ func GenerateCombat(damage int) func(*MainScene, Card) {
 		if source.(*BaseCard).decorators[0].(*CharacterDecorator).Hp <= 0 {
 			source.(*BaseCard).decorators[0].(*CharacterDecorator).OnDefeat(s, source)
 		}
-
+		s.OnPlayerMove()
 	}
 }
 func GenerateReward(tier int) func(*MainScene, Card) {
@@ -120,18 +135,31 @@ func GenerateReward(tier int) func(*MainScene, Card) {
 	}
 
 }
+func NewHopGoblinDecor() CardDecorator {
+	goblinHP := []int{6, 7, 8}
+	return &CharacterDecorator{Hp: goblinHP[rand.Int()%len(goblinHP)], image: goblinImg,
+		Name:        "HopGoblin",
+		OnDefeat:    GenerateReward(1),
+		OnClickFunc: GenerateCombat(3),
+		shader:      dakkaShader,
+		Description: "A tougher goblin"}
+}
 func NewGoblinDecor() CardDecorator {
+	goblinHP := []int{2, 3, 4}
 
-	return &CharacterDecorator{Hp: 3, image: goblinImg,
+	return &CharacterDecorator{Hp: goblinHP[rand.Int()%len(goblinHP)], image: goblinImg,
 		Name: "Goblin", OnDefeat: GenerateReward(0), OnClickFunc: GenerateCombat(3), Description: "A small goblin"}
 }
 func NewSkeletonDecor() CardDecorator {
-	if goblinImg == nil {
+	if SkeletonImage == nil {
 		imgReader := bytes.NewReader(SkeletonImage)
 		skeletonImg, _, _ = ebitenutil.NewImageFromReader(imgReader)
 	}
+	skletonHP := []int{1, 2, 3}
+
 	return &CharacterDecorator{
-		Hp: 1, image: skeletonImg, Name: "Skeltn",
+		Hp:    skletonHP[rand.Int()%len(skletonHP)],
+		image: skeletonImg, Name: "Skeltn",
 		OnClickFunc: GenerateCombat(1),
 		OnDefeat:    GenerateReward(0),
 		Description: "A small Skeleton",
@@ -154,16 +182,33 @@ func (k *CharacterDecorator) GetDescription() string {
 func (k *CharacterDecorator) Draw(card *ebiten.Image) {
 	opt := ebiten.DrawImageOptions{}
 	opt.GeoM.Translate(10, 50)
+
 	txtOpt := text.DrawOptions{}
 	txtOpt.GeoM.Scale(0.7, 0.7)
-	txtOpt.GeoM.Translate(55, 6)
-
+	txtOpt.GeoM.Translate(80, 6)
+	txtOpt.PrimaryAlign = text.AlignEnd
 	txtOpt.ColorScale.ScaleWithColor(RED)
 	text.Draw(card, fmt.Sprintf("%d", k.Hp), face, &txtOpt)
 	// txtOpt.GeoM.Reset()
-	txtOpt.GeoM.Translate(-30, 50)
+	txtOpt = text.DrawOptions{}
+	txtOpt.PrimaryAlign = text.AlignCenter
+	txtOpt.GeoM.Scale(0.7, 0.7)
+	txtOpt.GeoM.Translate(70, 56)
+
 	txtOpt.ColorScale.ScaleWithColor(RED)
 	txtOpt.GeoM.Scale(0.6, 0.6)
 	text.Draw(card, k.Name, face, &txtOpt)
-	card.DrawImage(k.image, &opt)
+	if k.shader == nil {
+		card.DrawImage(k.image, &opt)
+	} else {
+		opts := &ebiten.DrawRectShaderOptions{}
+		// if e.ScaleParam != nil {
+		// 	opts.GeoM.Scale(e.ScaleParam.Sx, e.ScaleParam.Sy)
+		// }
+		opts.GeoM.Translate(10, 50)
+		opts.Images[0] = k.image
+		bounds := k.image.Bounds()
+		card.DrawRectShader(bounds.Dx(), bounds.Dy(), k.shader, opts)
+	}
+
 }

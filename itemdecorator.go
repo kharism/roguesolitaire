@@ -52,11 +52,12 @@ func (k *ItemDecorator) OnClick(state *MainScene, source Card) {
 	state.CharacterCard.AddAnimation(core.NewMoveAnimationFromParam(core.MoveParam{Tx: posX, Ty: posY, Speed: CARD_MOVE_SPEED}))
 	k.OnAccquire(state)
 	state.zones[idxY][idxX] = state.CharacterCard
-	newCard := generator.GenerateCard()
+	newCard := generator.GenerateCard(state)
 	newCard.(*BaseCard).SetPos(float64(BORDER_X[PLAYER_IDX_X]), float64(BORDER_Y[PLAYER_IDX_Y]))
 	state.zones[PLAYER_IDX_Y][PLAYER_IDX_X] = newCard.(*BaseCard)
 	PLAYER_IDX_X = idxX
 	PLAYER_IDX_Y = idxY
+	state.OnPlayerMove()
 }
 func (k *ItemDecorator) Update() error {
 	return nil
@@ -97,7 +98,7 @@ func NewMedPotionDecorator() CardDecorator {
 	// }
 	return &ItemDecorator{image: potion1, Name: "Red\nPotion(m)", OnAccquire: func(s *MainScene) {
 		// s.Character.TakeDamage(-3)
-		s.Character.TakeDirectDamage(-4)
+		s.Character.TakeDirectDamage(-4, s, nil)
 	}, Description: "Recover 4 HP"}
 }
 func NewLightPotionDecorator() CardDecorator {
@@ -106,7 +107,7 @@ func NewLightPotionDecorator() CardDecorator {
 	// 	potion1, _, _ = ebitenutil.NewImageFromReader(imgReader)
 	// }
 	return &ItemDecorator{image: potion1, Name: "Red\nPotion(s)", OnAccquire: func(s *MainScene) {
-		s.Character.TakeDirectDamage(-2)
+		s.Character.TakeDirectDamage(-2, s, nil)
 	}, Description: "recover 2 HP"}
 }
 func NewMeat() CardDecorator {
@@ -114,7 +115,7 @@ func NewMeat() CardDecorator {
 
 	SliceIdxImg := meat.SubImage(image.Rect(64*idx, 0, 64*(idx+1), 64))
 	return &ItemDecorator{image: SliceIdxImg.(*ebiten.Image), Name: "Meat", OnAccquire: func(s *MainScene) {
-		s.Character.TakeDirectDamage(-1)
+		s.Character.TakeDirectDamage(-1, s, nil)
 	}, Description: "Recover 1 HP"}
 }
 func (k *ItemDecorator) Draw(card *ebiten.Image) {
