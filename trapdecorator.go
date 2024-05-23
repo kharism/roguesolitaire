@@ -56,10 +56,15 @@ func (t *SpikeTrapDecorator) OnClick(state *MainScene, source Card) {
 	state.zones[PLAYER_IDX_Y][PLAYER_IDX_X] = newCard.(*BaseCard)
 	PLAYER_IDX_X = idxX
 	PLAYER_IDX_Y = idxY
+	state.OnPlayerMove()
 }
 
 func NewSpikeTrapDecorator() CardDecorator {
-	return &SpikeTrapDecorator{CharacterDecorator: &CharacterDecorator{image: spike, Name: "Spike", Hp: 1, Description: "Do 1 Direct damage\nregardless of loadout"}}
+	return &SpikeTrapDecorator{CharacterDecorator: &CharacterDecorator{image: spike,
+		Name:        "Spike",
+		Hp:          1,
+		OnDefeat:    GenerateReward(1),
+		Description: "Do 1 Direct damage\nregardless of loadout"}}
 }
 
 type BombDecorator struct {
@@ -121,7 +126,7 @@ func (b *BombDecorator) OnClick(mainScene *MainScene, source Card) {
 	mainScene.OnPlayerMove()
 }
 func (b *BombDecorator) GetDescription() string {
-	return fmt.Sprintf("Bomb that will damage adjacent cards for 4\nWill explode in %d turn", b.TurnToExplode)
+	return fmt.Sprintf("Bomb that will damage\nadjacent cards for 4\nWill explode in %d turn", b.TurnToExplode)
 }
 
 // TODO: get index of certain
@@ -145,11 +150,11 @@ func (b *BombDecorator) OnPlayerMove(card Card, s *MainScene) {
 		posX, posY := IdxToPixel(cardX, cardY)
 		idxX, idxY := PixelToIndex(int(posX), int(posY))
 		adjacent := []*BaseCard{}
-		for i := idxY - 1; i < idxY+1; i++ {
+		for i := idxY - 1; i <= idxY+1; i++ {
 			if i < 0 || i > 2 {
 				continue
 			}
-			for j := idxX - 1; j < idxX+1; j++ {
+			for j := idxX - 1; j <= idxX+1; j++ {
 				if j < 0 || j > 2 {
 					continue
 				}
@@ -167,7 +172,7 @@ func (b *BombDecorator) OnPlayerMove(card Card, s *MainScene) {
 				// 	fmt.Println("DSDSDSD")
 				// }
 				if v, ok := s.zones[i][j].decorators[0].(CharacterInterface); ok {
-					fmt.Println(s.zones[i][j].decorators[0])
+					fmt.Println(s.zones[i][j].decorators[0].GetDescription())
 					v.TakeDirectDamage(4, s, s.zones[i][j])
 				}
 			}

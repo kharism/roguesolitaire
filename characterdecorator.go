@@ -7,7 +7,6 @@ import (
 	_ "image/png"
 	"log"
 	"math/rand"
-	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -110,8 +109,9 @@ func NewKnightDecor() CardDecorator {
 
 	return &CharacterDecorator{Hp: 10, image: knightImg, Name: "Knight", OnClickFunc: func(s *MainScene, c Card) {
 
-	}, OnDefeat: func(*MainScene, Card) {
-		os.Exit(0)
+	}, OnDefeat: func(scene *MainScene, h Card) {
+		// os.Exit(0)
+		scene.OnDefeat()
 	}, Description: "Your Character"}
 }
 
