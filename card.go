@@ -101,6 +101,7 @@ func NewBaseCard(decorators []CardDecorator) Card {
 	c := &BaseCard{}
 	c.decorators = decorators
 	param := core.MovableImageParams{}
+	param.WithScale(&core.ScaleParam{Sx: 1, Sy: 1})
 	c.MovableImage = core.NewMovableImage(c.GetImage(), &param)
 	return c
 }

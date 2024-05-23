@@ -81,6 +81,8 @@ func (c *ChestDecorator) OnClick(mainScene *MainScene, source Card) {
 	c.isAnim = true
 	c.dropResource = func() {
 		source.RemoveDecorator(c)
-		source.AddDecorator(NewLightPotionDecorator())
+		decor := rwdGenerator.GenerateReward(0)
+		source.AddDecorator(decor)
 	}
+	mainScene.OnPlayerMove()
 }

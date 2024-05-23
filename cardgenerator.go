@@ -14,7 +14,7 @@ func init() {
 }
 func (g *cardGenerator) GenerateCard(ms *MainScene) Card {
 	baseCard := NewBaseCard([]CardDecorator{})
-	p := rand.Int() % 4
+	p := rand.Int() % 6
 	switch p {
 	case 0:
 		baseCard.AddDecorator(NewCoinDecorator())
@@ -39,6 +39,12 @@ func (g *cardGenerator) GenerateCard(ms *MainScene) Card {
 		baseCard.AddDecorator(NewSkeletonDecor())
 	case 3:
 		baseCard.AddDecorator(NewSwordDecorator())
+	case 4:
+		baseCard.AddDecorator(NewChestDecorator())
+	case 5:
+		decorators := []CardDecorator{NewBombDecorator(), NewSpikeTrapDecorator()}
+		decor := decorators[rand.Int()%len(decorators)]
+		baseCard.AddDecorator(decor)
 	}
 	return baseCard
 }

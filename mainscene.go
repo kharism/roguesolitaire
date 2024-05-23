@@ -14,6 +14,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/joelschutz/stagehand"
+	"github.com/kharism/hanashi/core"
 )
 
 //go:embed assets/img/infobg.png
@@ -41,6 +42,9 @@ type MainScene struct {
 	touchIDs      []ebiten.TouchID
 	zones         [3][3]*BaseCard
 	CurDesc       string
+
+	isDefeated      bool
+	defeatedCounter int // this counter is only used in animation when loosing
 }
 
 func NewMainScene() *MainScene {
@@ -89,6 +93,13 @@ func (m *MainScene) Update() error {
 			m.zones[idxY][idxX].OnClick(m)
 		}
 
+	}
+	if m.isDefeated {
+		m.defeatedCounter++
+	}
+	if m.defeatedCounter%60 == 59 {
+		// m.defeatedCounter = 0
+		m.director.ProcessTrigger(TriggerToSum)
 	}
 	cardIdx, cardIdy := PixelToIndex(mouseX, mouseY)
 	if cardIdx >= 0 && cardIdy >= 0 {
@@ -151,6 +162,16 @@ func (m *MainScene) DrawInfoBg(screen *ebiten.Image) {
 	opts.GeoM.Scale(1.2, 25)
 	opts.GeoM.Translate(bgInfoStartX, float64(bgInfoStartY)+35)
 	screen.DrawImage(midPart.(*ebiten.Image), &opts)
+
+}
+func (m *MainScene) OnDefeat() {
+	for idx1, _ := range m.zones {
+		for idx2, _ := range m.zones[idx1] {
+			scaleAnim := core.ScaleAnimation{Tsx: 0.1, Tsy: 0.1, SpeedX: -0.01, SpeedY: -0.01}
+			m.zones[idx1][idx2].AddAnimation(&scaleAnim)
+		}
+	}
+	m.isDefeated = true
 
 }
 func (m *MainScene) DrawInfoBg2(screen *ebiten.Image) {
@@ -224,7 +245,7 @@ func (s *MainScene) Load(state MyState, director stagehand.SceneController[MySta
 	// your load code
 	s.director = director.(*stagehand.SceneDirector[MyState]) // This type assertion is important
 	s.State = &state
-
+	s.isDefeated = false
 	BORDER_X = make([]int, 4)
 	BORDER_Y = make([]int, 4)
 	// s.zones[1][1]
@@ -240,12 +261,10 @@ func (s *MainScene) Load(state MyState, director stagehand.SceneController[MySta
 				s.Character = SwordedKnight.(*SwordChDecorator)
 				s.zones[idx][idx2] = NewBaseCard([]CardDecorator{SwordedKnight}).(*BaseCard)
 				s.CharacterCard = s.zones[idx][idx2]
-			} else if idx == 2 && idx2 == 2 {
-				s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewBombDecorator()}).(*BaseCard)
 			} else {
 				i := rand.Int() % 3
 				if i == 0 {
-					s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewLightPotionDecorator()}).(*BaseCard)
+					s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewSkeletonDecor()}).(*BaseCard)
 				} else if i == 1 {
 					// s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewBombDecorator()}).(*BaseCard)
 					// s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewSpikeTrapDecorator()}).(*BaseCard)
@@ -272,5 +291,5 @@ func (s *MainScene) Layout(outsideWidth, outsideHeight int) (screenWidth, screen
 }
 func (s *MainScene) Unload() MyState {
 	// your unload code
-	return MyState{}
+	return *s.State
 }

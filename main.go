@@ -12,6 +12,7 @@ type Game struct{}
 const (
 	TriggerToMain stagehand.SceneTransitionTrigger = iota
 	TriggerToMenu
+	TriggerToSum
 )
 
 var knight CardDecorator
@@ -45,14 +46,22 @@ func main() {
 	state := MyState{
 		PlayerCharacter: NewKnightDecor(),
 	}
+	// state.Coin = 117
+	summary := &SummaryScene{}
 	trans := stagehand.NewSlideTransition[MyState](stagehand.LeftToRight, 0.05)
+	trans2 := stagehand.NewSlideTransition[MyState](stagehand.RightToLeft, 0.05)
+	trans3 := stagehand.NewFadeTransition[MyState](0.3)
 	// ruleSet := make(map[stagehand.Scene[MyState]][]stagehand.Directive[MyState])
 	ruleSet := map[stagehand.Scene[MyState]][]stagehand.Directive[MyState]{
 		menuScene: []stagehand.Directive[MyState]{
 			stagehand.Directive[MyState]{Dest: scene1, Trigger: TriggerToMain, Transition: trans},
 		},
 		scene1: []stagehand.Directive[MyState]{
-			stagehand.Directive[MyState]{Dest: menuScene, Trigger: TriggerToMenu, Transition: trans},
+			stagehand.Directive[MyState]{Dest: summary, Trigger: TriggerToSum, Transition: trans3},
+		},
+		summary: []stagehand.Directive[MyState]{
+			stagehand.Directive[MyState]{Dest: menuScene, Trigger: TriggerToMenu, Transition: trans2},
+			stagehand.Directive[MyState]{Dest: scene1, Trigger: TriggerToMain, Transition: trans3},
 		},
 	}
 	manager := stagehand.NewSceneDirector[MyState](menuScene, state, ruleSet)
