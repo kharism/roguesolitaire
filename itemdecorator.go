@@ -46,15 +46,80 @@ func GenerateAddCoinFunc(Amount int) OnAccquireFunc {
 		state.State.Coin += Amount
 	}
 }
+
+// idxX,idxY the location of player after move
+func GetMovedCard(mainScene *MainScene, idxX, idxY int) (*BaseCard, int, int) {
+	if PLAYER_IDX_X-idxX == 0 {
+		//player moves vertically
+		if PLAYER_IDX_Y > idxY {
+			//player moved up, check the bellow
+			if PLAYER_IDX_Y+1 <= 2 {
+				return mainScene.zones[PLAYER_IDX_Y+1][PLAYER_IDX_X], PLAYER_IDX_Y + 1, PLAYER_IDX_X
+			} else {
+				// if there is no bellow zone
+				if PLAYER_IDX_X+1 <= 2 {
+					return mainScene.zones[PLAYER_IDX_Y][PLAYER_IDX_X+1], PLAYER_IDX_Y, PLAYER_IDX_X + 1
+				} else {
+					return mainScene.zones[PLAYER_IDX_Y][PLAYER_IDX_X-1], PLAYER_IDX_Y, PLAYER_IDX_X - 1
+				}
+			}
+		} else {
+			// player moved down, check above
+			if PLAYER_IDX_Y-1 >= 0 {
+				return mainScene.zones[PLAYER_IDX_Y-1][PLAYER_IDX_X], PLAYER_IDX_Y - 1, PLAYER_IDX_X
+			} else {
+				// if there is no bellow zone
+				if PLAYER_IDX_X+1 <= 2 {
+					return mainScene.zones[PLAYER_IDX_Y][PLAYER_IDX_X+1], PLAYER_IDX_Y, PLAYER_IDX_X + 1
+				} else {
+					return mainScene.zones[PLAYER_IDX_Y][PLAYER_IDX_X-1], PLAYER_IDX_Y, PLAYER_IDX_X - 1
+				}
+			}
+		}
+	} else {
+		//player moves horizontally
+		if PLAYER_IDX_X > idxX {
+			//player moves left
+			if PLAYER_IDX_X+1 <= 2 {
+				return mainScene.zones[PLAYER_IDX_Y][PLAYER_IDX_X+1], PLAYER_IDX_Y, PLAYER_IDX_X + 1
+			} else {
+				// there is no more zone on the right
+				if PLAYER_IDX_Y-1 >= 0 {
+					return mainScene.zones[PLAYER_IDX_Y-1][PLAYER_IDX_X], PLAYER_IDX_Y - 1, PLAYER_IDX_X
+				} else {
+					return mainScene.zones[PLAYER_IDX_Y+1][PLAYER_IDX_X], PLAYER_IDX_Y + 1, PLAYER_IDX_X
+				}
+			}
+
+		} else {
+			//player moves right
+			if PLAYER_IDX_X-1 >= 0 {
+				return mainScene.zones[PLAYER_IDX_Y][PLAYER_IDX_X-1], PLAYER_IDX_Y, PLAYER_IDX_X - 1
+			} else {
+				if PLAYER_IDX_Y-1 >= 0 {
+					return mainScene.zones[PLAYER_IDX_Y-1][PLAYER_IDX_X], PLAYER_IDX_Y - 1, PLAYER_IDX_X
+				} else {
+					return mainScene.zones[PLAYER_IDX_Y+1][PLAYER_IDX_X], PLAYER_IDX_Y + 1, PLAYER_IDX_X
+				}
+			}
+		}
+	}
+}
 func (k *ItemDecorator) OnClick(state *MainScene, source Card) {
 	posX, posY := source.(*BaseCard).GetPos()
 	idxX, idxY := PixelToIndex(int(posX), int(posY))
 	state.CharacterCard.AddAnimation(core.NewMoveAnimationFromParam(core.MoveParam{Tx: posX, Ty: posY, Speed: CARD_MOVE_SPEED}))
 	k.OnAccquire(state)
 	state.zones[idxY][idxX] = state.CharacterCard
+	movedCard, newCardIdxY, newCardIdxX := GetMovedCard(state, idxX, idxY)
+	oldCardPosX, oldCardPosY := movedCard.GetPos()
+	newMoveParam := core.MoveParam{Tx: float64(BORDER_X[PLAYER_IDX_X]), Ty: float64(BORDER_Y[PLAYER_IDX_Y]), Speed: CARD_MOVE_SPEED}
+	movedCard.AddAnimation(core.NewMoveAnimationFromParam(newMoveParam))
+	state.zones[PLAYER_IDX_Y][PLAYER_IDX_X] = movedCard
 	newCard := generator.GenerateCard(state)
-	newCard.(*BaseCard).SetPos(float64(BORDER_X[PLAYER_IDX_X]), float64(BORDER_Y[PLAYER_IDX_Y]))
-	state.zones[PLAYER_IDX_Y][PLAYER_IDX_X] = newCard.(*BaseCard)
+	newCard.(*BaseCard).SetPos(oldCardPosX, oldCardPosY)
+	state.zones[newCardIdxY][newCardIdxX] = newCard.(*BaseCard)
+
 	PLAYER_IDX_X = idxX
 	PLAYER_IDX_Y = idxY
 	state.OnPlayerMove()

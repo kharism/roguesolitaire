@@ -131,7 +131,10 @@ func GenerateCombat(damage int) func(*MainScene, Card) {
 }
 func GenerateReward(tier int) func(*MainScene, Card) {
 	return func(s *MainScene, source Card) {
-		source.(*BaseCard).decorators[0] = rwdGenerator.GenerateReward(tier)
+		reward := rwdGenerator.GenerateReward(tier)
+		transDecorator := NewTransitionDecorator(source.(*BaseCard).decorators[0], reward, source.(*BaseCard))
+		// source.(*BaseCard).decorators[0] = rwdGenerator.GenerateReward(tier)
+		source.(*BaseCard).decorators[0] = transDecorator
 	}
 
 }
