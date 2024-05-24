@@ -25,6 +25,9 @@ var PixelFontTTF []byte
 //go:embed assets/img/skeleton.png
 var SkeletonImage []byte
 
+//go:embed assets/img/org.png
+var OrgImage []byte
+
 //go:embed shaders/dakka.kage
 var DakkaShader []byte
 
@@ -33,6 +36,7 @@ var PixelFont *text.GoTextFaceSource
 var knightImg *ebiten.Image
 var goblinImg *ebiten.Image
 var skeletonImg *ebiten.Image
+var orgImage *ebiten.Image
 var face *text.GoTextFace
 var dakkaShader *ebiten.Shader
 
@@ -80,6 +84,10 @@ func init() {
 		imgReader := bytes.NewReader(SkeletonImage)
 		skeletonImg, _, _ = ebitenutil.NewImageFromReader(imgReader)
 	}
+	if orgImage == nil {
+		imgReader := bytes.NewReader(OrgImage)
+		orgImage, _, _ = ebitenutil.NewImageFromReader(imgReader)
+	}
 	dakkaShader, err = ebiten.NewShader(DakkaShader)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -90,6 +98,7 @@ func (d *CharacterDecorator) TakeDirectDamage(dmg int, s *MainScene, source Card
 	d.Hp -= dmg
 	if d.Hp <= 0 {
 		// os.Exit(0)
+
 		d.OnDefeat(s, source)
 	}
 }
@@ -116,7 +125,7 @@ func NewKnightDecor() CardDecorator {
 }
 
 // return a function that handle
-func GenerateCombat(damage int) func(*MainScene, Card) {
+func GenerateCombat() func(*MainScene, Card) {
 	return func(s *MainScene, source Card) {
 		// posX, posY := source.(*BaseCard).GetPos()
 		// idxX, idxY := PixelToIndex(int(posX), int(posY))
@@ -131,16 +140,30 @@ func GenerateCombat(damage int) func(*MainScene, Card) {
 }
 func GenerateReward(tier int) func(*MainScene, Card) {
 	return func(s *MainScene, source Card) {
-		source.(*BaseCard).decorators[0] = rwdGenerator.GenerateReward(tier)
+		reward := rwdGenerator.GenerateReward(tier)
+		s.MonstersDefeated += 1
+		transDecorator := NewTransitionDecorator(source.(*BaseCard).decorators[0], reward, source.(*BaseCard))
+		// source.(*BaseCard).decorators[0] = rwdGenerator.GenerateReward(tier)
+		source.(*BaseCard).decorators[0] = transDecorator
 	}
 
 }
+func NewOrgDecor() CardDecorator {
+	orgHP := []int{15, 16, 20}
+	return &CharacterDecorator{Hp: orgHP[rand.Int()%len(orgHP)], image: orgImage,
+		Name:        "Org",
+		OnDefeat:    GenerateReward(2),
+		OnClickFunc: GenerateCombat(),
+		// shader:      dakkaShader,
+		Description: "Brute-ish creature"}
+}
 func NewHopGoblinDecor() CardDecorator {
 	goblinHP := []int{6, 7, 8}
-	return &CharacterDecorator{Hp: goblinHP[rand.Int()%len(goblinHP)], image: goblinImg,
+	hp := goblinHP[rand.Int()%len(goblinHP)]
+	return &CharacterDecorator{Hp: hp, image: goblinImg,
 		Name:        "HopGoblin",
 		OnDefeat:    GenerateReward(1),
-		OnClickFunc: GenerateCombat(3),
+		OnClickFunc: GenerateCombat(),
 		shader:      dakkaShader,
 		Description: "A tougher goblin"}
 }
@@ -148,7 +171,7 @@ func NewGoblinDecor() CardDecorator {
 	goblinHP := []int{2, 3, 4}
 
 	return &CharacterDecorator{Hp: goblinHP[rand.Int()%len(goblinHP)], image: goblinImg,
-		Name: "Goblin", OnDefeat: GenerateReward(0), OnClickFunc: GenerateCombat(3), Description: "A small goblin"}
+		Name: "Goblin", OnDefeat: GenerateReward(0), OnClickFunc: GenerateCombat(), Description: "A small goblin"}
 }
 func NewSkeletonDecor() CardDecorator {
 	if SkeletonImage == nil {
@@ -160,7 +183,7 @@ func NewSkeletonDecor() CardDecorator {
 	return &CharacterDecorator{
 		Hp:    skletonHP[rand.Int()%len(skletonHP)],
 		image: skeletonImg, Name: "Skeltn",
-		OnClickFunc: GenerateCombat(1),
+		OnClickFunc: GenerateCombat(),
 		OnDefeat:    GenerateReward(0),
 		Description: "A small Skeleton",
 	}

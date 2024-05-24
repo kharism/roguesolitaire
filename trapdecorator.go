@@ -51,9 +51,16 @@ func (t *SpikeTrapDecorator) OnClick(state *MainScene, source Card) {
 	// k.OnAccquire(state)
 	state.Character.TakeDirectDamage(1, state, source)
 	state.zones[idxY][idxX] = state.CharacterCard
+	movedCard, newCardIdxY, newCardIdxX := GetMovedCard(state, idxX, idxY)
+	oldCardPosX, oldCardPosY := movedCard.GetPos()
+	newMoveParam := core.MoveParam{Tx: float64(BORDER_X[PLAYER_IDX_X]), Ty: float64(BORDER_Y[PLAYER_IDX_Y]), Speed: CARD_MOVE_SPEED}
+	movedCard.AddAnimation(core.NewMoveAnimationFromParam(newMoveParam))
+	state.CurMovingCard = movedCard
+	state.zones[PLAYER_IDX_Y][PLAYER_IDX_X] = movedCard
 	newCard := generator.GenerateCard(state)
-	newCard.(*BaseCard).SetPos(float64(BORDER_X[PLAYER_IDX_X]), float64(BORDER_Y[PLAYER_IDX_Y]))
-	state.zones[PLAYER_IDX_Y][PLAYER_IDX_X] = newCard.(*BaseCard)
+	newCard.(*BaseCard).SetPos(oldCardPosX, oldCardPosY)
+	state.zones[newCardIdxY][newCardIdxX] = newCard.(*BaseCard)
+
 	PLAYER_IDX_X = idxX
 	PLAYER_IDX_Y = idxY
 	state.OnPlayerMove()
@@ -64,7 +71,7 @@ func NewSpikeTrapDecorator() CardDecorator {
 		Name:        "Spike",
 		Hp:          1,
 		OnDefeat:    GenerateReward(1),
-		Description: "Do 1 Direct damage\nregardless of loadout"}}
+		Description: "Do 1 Direct damage\nregardless of loadout\nAn explosion may\nneutralize this"}}
 }
 
 type BombDecorator struct {
