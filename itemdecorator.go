@@ -115,6 +115,7 @@ func (k *ItemDecorator) OnClick(state *MainScene, source Card) {
 	oldCardPosX, oldCardPosY := movedCard.GetPos()
 	newMoveParam := core.MoveParam{Tx: float64(BORDER_X[PLAYER_IDX_X]), Ty: float64(BORDER_Y[PLAYER_IDX_Y]), Speed: CARD_MOVE_SPEED}
 	movedCard.AddAnimation(core.NewMoveAnimationFromParam(newMoveParam))
+	state.CurMovingCard = movedCard
 	state.zones[PLAYER_IDX_Y][PLAYER_IDX_X] = movedCard
 	newCard := generator.GenerateCard(state)
 	newCard.(*BaseCard).SetPos(oldCardPosX, oldCardPosY)

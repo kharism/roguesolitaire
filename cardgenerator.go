@@ -36,13 +36,18 @@ func (g *cardGenerator) GenerateCard(ms *MainScene) Card {
 		// decor = NewWeaknessDecorator(decor, DIRECTION_UP)
 		baseCard.AddDecorator(decor)
 	case 2:
-		baseCard.AddDecorator(NewSkeletonDecor())
+		if ms.MonstersDefeated < 10 {
+			baseCard.AddDecorator(NewSkeletonDecor())
+		} else {
+			baseCard.AddDecorator(NewOrgDecor())
+		}
+
 	case 3:
 		baseCard.AddDecorator(NewSwordDecorator())
 	case 4:
 		baseCard.AddDecorator(NewChestDecorator())
 	case 5:
-		decorators := []CardDecorator{NewBombDecorator(), NewSpikeTrapDecorator()}
+		decorators := []CardDecorator{NewBombDecorator(), NewSpikeTrapDecorator(), NewSpikeTrapDecorator()}
 		decor := decorators[rand.Int()%len(decorators)]
 		baseCard.AddDecorator(decor)
 	}
@@ -61,7 +66,8 @@ func (r *rewardGenerator) GenerateReward(tierLevel int) CardDecorator {
 		case 0:
 			return NewCoinDecorator()
 		case 1:
-			return NewLightPotionDecorator()
+			NewMeat()
+			// return NewLightPotionDecorator()
 		case 2:
 			return NewMeat()
 		}
@@ -73,7 +79,8 @@ func (r *rewardGenerator) GenerateReward(tierLevel int) CardDecorator {
 		case 1:
 			return NewMedPotionDecorator()
 		}
-
+	case 2:
+		return NewSwordDecorator()
 	default:
 		return NewCoinDecorator()
 	}

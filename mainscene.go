@@ -42,9 +42,12 @@ type MainScene struct {
 	touchIDs      []ebiten.TouchID
 	zones         [3][3]*BaseCard
 	CurDesc       string
+	CurMovingCard *BaseCard
 
 	isDefeated      bool
 	defeatedCounter int // this counter is only used in animation when loosing
+
+	MonstersDefeated int //
 }
 
 func NewMainScene() *MainScene {
@@ -224,6 +227,10 @@ func (m *MainScene) Draw(screen *ebiten.Image) {
 			if idx == PLAYER_IDX_Y && idx2 == PLAYER_IDX_X {
 				continue
 			}
+			if m.zones[idx][idx2] == m.CurMovingCard {
+				continue
+			}
+
 			b.Draw(screen)
 		}
 	}
@@ -231,6 +238,10 @@ func (m *MainScene) Draw(screen *ebiten.Image) {
 		m.DrawDesc(screen)
 	}
 	m.zones[PLAYER_IDX_Y][PLAYER_IDX_X].Draw(screen)
+	if m.CurMovingCard != nil {
+		m.CurMovingCard.Draw(screen)
+	}
+
 	m.DrawInfoBg2(screen)
 	opt := ebiten.DrawImageOptions{}
 	opt.GeoM.Translate(bgInfoStartX, float64(bgInfoStartY+35+250)+10)
@@ -246,6 +257,8 @@ func (s *MainScene) Load(state MyState, director stagehand.SceneController[MySta
 	s.director = director.(*stagehand.SceneDirector[MyState]) // This type assertion is important
 	s.State = &state
 	s.isDefeated = false
+	s.MonstersDefeated = 0
+	s.CurMovingCard = nil
 	BORDER_X = make([]int, 4)
 	BORDER_Y = make([]int, 4)
 	// s.zones[1][1]
@@ -267,8 +280,8 @@ func (s *MainScene) Load(state MyState, director stagehand.SceneController[MySta
 					s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewSkeletonDecor()}).(*BaseCard)
 				} else if i == 1 {
 					// s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewBombDecorator()}).(*BaseCard)
-					// s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewSpikeTrapDecorator()}).(*BaseCard)
-					s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewChestDecorator()}).(*BaseCard)
+					s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewSpikeTrapDecorator()}).(*BaseCard)
+					// s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewChestDecorator()}).(*BaseCard)
 				} else if i == 2 {
 					// HopDecor := NewHopGoblinDecor()
 					// weakness := NewWeaknessDecorator(HopDecor, DIRECTION_UP|DIRECTION_DOWN)
