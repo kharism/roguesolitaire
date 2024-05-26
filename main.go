@@ -40,7 +40,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 
 func main() {
 	ebiten.SetWindowSize(640, 480)
-	ebiten.SetWindowTitle("Hello, World!")
+	ebiten.SetWindowTitle("Rogue Solitaire")
 	scene1 := &MainScene{}
 	menuScene := &MenuScene{}
 	state := MyState{

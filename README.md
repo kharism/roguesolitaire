@@ -12,9 +12,13 @@ The game still have no clear objective yet
 
 To run the game 
 
-```
-git clone ghttps://github.com/kharism/roguesolitaire.git // download the code
+```shell
+# download the code
+git clone https://github.com/kharism/roguesolitaire.git
+
+# run the game
 cd roguesolitaire
 go run *.go
 ```
+
 ![screenshoot](img/screenshoot.jpg)
