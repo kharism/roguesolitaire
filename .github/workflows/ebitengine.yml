@@ -50,8 +50,7 @@ jobs:
         run: |
           go \
             --build \
-            -o web/game.wasm \
-            "${{ steps.pages.outputs.base_url }}/"
+            -o web/game.wasm .
       - name: Copy Go wasm js
         run: cp $(go env GOROOT)/misc/wasm/wasm_exec.js web/.
       - name: Upload artifact
