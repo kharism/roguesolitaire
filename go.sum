@@ -35,6 +35,8 @@ github.com/kharism/golang-csg v0.0.0-20220829085131-457731c503f8 h1:jfJ2gh3Vtfwu
 github.com/kharism/golang-csg v0.0.0-20220829085131-457731c503f8/go.mod h1:T1WneW0eJbHICqKfZReDmgCn/t8PaAAq/7iHDY5q5Hg=
 github.com/kharism/hanashi v0.0.0-20240506135002-d8096640d831 h1:kxYs+MUMRdRqPXgExoz31vu1mfzPcdm669PcUBJDv2g=
 github.com/kharism/hanashi v0.0.0-20240506135002-d8096640d831/go.mod h1:qp8FidmS/L/2ghCq9Rx/ChRY0ZBdnlMgCe22/vTVOQ8=
+github.com/kharism/hanashi v0.0.0-20240522092357-5a1870d2b975 h1:bjSjehv/zn/GwBjkV+zF5ELI4AY0g5NqygPjf8gQkdg=
+github.com/kharism/hanashi v0.0.0-20240522092357-5a1870d2b975/go.mod h1:qp8FidmS/L/2ghCq9Rx/ChRY0ZBdnlMgCe22/vTVOQ8=
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
