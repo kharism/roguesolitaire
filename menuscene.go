@@ -3,10 +3,10 @@ package main
 import (
 	"bytes"
 	_ "embed"
+	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/joelschutz/stagehand"
 	"github.com/kharism/hanashi/core"
@@ -47,17 +47,22 @@ func (b *MenuButton) Draw(screen *ebiten.Image) {
 	text.Draw(screen, b.Label, face, &txtOpt)
 }
 func (b *MenuButton) Update() {
-	curX, curY := ebiten.CursorPosition()
+	// curX, curY := ebiten.CursorPosition()
+	isClicked, curX, curY := IsClickedOrTap()
+	if !isClicked {
+		curX, curY = ebiten.CursorPosition()
+	}
 	butPosX, butPosY := b.GetPos()
 	width, height := b.GetSize()
-	// fmt.Println(width, height)
 	if curX > int(butPosX) && curX < int(butPosX+width) && curY > int(butPosY) && curY < int(butPosY+height) {
 		b.cursorIn = true
 		// fmt.Println("Cursor In")
 	} else {
 		b.cursorIn = false
 	}
-	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButton0) {
+	if isClicked { //inpututil.IsMouseButtonJustReleased(ebiten.MouseButton0) {
+		fmt.Println("Click detected")
+		fmt.Println(curX, int(butPosX), butPosX+width, curY, butPosY, butPosY+height)
 		if b.cursorIn && b.onClickFunc != nil {
 			b.onClickFunc()
 		}
