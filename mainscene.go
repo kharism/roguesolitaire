@@ -216,7 +216,7 @@ func (m *MainScene) DrawDesc(screen *ebiten.Image) {
 	txtOpt := text.DrawOptions{}
 	txtOpt.GeoM.Scale(0.7, 0.7)
 	txtOpt.GeoM.Translate(bgInfoStartX+5, float64(bgInfoStartY)+35)
-	txtOpt.LineSpacing = 20
+	txtOpt.LineSpacing = 24
 	txtOpt.ColorScale.ScaleWithColor(RED)
 	text.Draw(screen, m.CurDesc, face, &txtOpt)
 }
@@ -282,8 +282,8 @@ func (s *MainScene) Load(state MyState, director stagehand.SceneController[MySta
 					s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewSkeletonDecor()}).(*BaseCard)
 				} else if i == 1 {
 					// s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewBombDecorator()}).(*BaseCard)
-					s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewSpikeTrapDecorator()}).(*BaseCard)
-					// s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewChestDecorator()}).(*BaseCard)
+					// s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewSpikeTrapDecorator()}).(*BaseCard)
+					s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewChestDecorator()}).(*BaseCard)
 				} else if i == 2 {
 					// HopDecor := NewHopGoblinDecor()
 					// weakness := NewWeaknessDecorator(HopDecor, DIRECTION_UP|DIRECTION_DOWN)
