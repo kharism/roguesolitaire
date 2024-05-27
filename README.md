@@ -1,4 +1,6 @@
-# RogueSolitaire
+# Rogue Solitaire
+
+[**Play it from Browser**](https://kharism.github.io/roguesolitaire/)
 
 ## Intro
 
