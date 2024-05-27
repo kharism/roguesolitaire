@@ -96,6 +96,8 @@ func (m *MainScene) Update() error {
 			m.zones[idxY][idxX].OnClick(m)
 		}
 
+	} else {
+		mouseX, mouseY = ebiten.CursorPosition()
 	}
 	if m.isDefeated {
 		m.defeatedCounter++
