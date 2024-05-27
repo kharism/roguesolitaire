@@ -2,8 +2,8 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"math"
+	"strings"
 
 	_ "embed"
 
@@ -108,5 +108,31 @@ func (d *WeaknessDecorator) OnClick(mainScene *MainScene, source Card) {
 
 }
 func (d *WeaknessDecorator) GetDescription() string {
-	return d.decorator.GetDescription() + fmt.Sprintf("\n %b", d.Direction)
+	WeaknessList := []string{}
+	dist := []byte{1, 2, 4, 8}
+	direction := []string{"UP", "RIGHT", "DOWN", "LEFT"}
+	for idx, v := range dist {
+		if d.Direction&v != 0 {
+			WeaknessList = append(WeaknessList, direction[idx])
+		}
+	}
+	allWeakness := strings.Join(WeaknessList, "\n-")
+	if len(allWeakness) == 0 {
+		return d.decorator.GetDescription()
+	}
+	return d.decorator.GetDescription() + "\nWeakness:\n-" + allWeakness
 }
+func (d *WeaknessDecorator) TakeDirectDamage(dmg int, s *MainScene, card Card) {
+	if c, ok := d.decorator.(CharacterInterface); ok {
+		c.TakeDirectDamage(dmg, s, card)
+	}
+}
+
+// take damage but still putting loadout into consideration
+func (d *WeaknessDecorator) TakeDamage(dmg int, s *MainScene, card Card) {
+	if c, ok := d.decorator.(CharacterInterface); ok {
+		c.TakeDamage(dmg, s, card)
+	}
+}
+
+func (d *WeaknessDecorator) DoBattle(*CharacterDecorator, *MainScene) {}
