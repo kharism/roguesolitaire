@@ -39,7 +39,10 @@ func (g *cardGenerator) GenerateCard(ms *MainScene) Card {
 		if ms.MonstersDefeated < 10 {
 			baseCard.AddDecorator(NewSkeletonDecor())
 		} else {
-			baseCard.AddDecorator(NewOrgDecor())
+			org := NewOrgDecor()
+			direction := rand.Int()%15 + 1
+			org = NewWeaknessDecorator(org, byte(direction))
+			baseCard.AddDecorator(org)
 		}
 
 	case 3:
