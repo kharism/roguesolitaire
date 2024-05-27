@@ -11,7 +11,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/joelschutz/stagehand"
 	"github.com/kharism/hanashi/core"
@@ -86,11 +85,12 @@ func (m *MainScene) OnPlayerMove() {
 	}
 }
 func (m *MainScene) Update() error {
-	mouseX, mouseY := ebiten.CursorPosition()
+	// mouseX, mouseY := ebiten.CursorPosition()
 	// if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 	// 	fmt.Println(inpututil.MouseButtonPressDuration(ebiten.MouseButtonLeft))
 	// }
-	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
+	isClicked, mouseX, mouseY := IsClickedOrTap()
+	if isClicked { //inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
 		idxX, idxY := PixelToIndex(mouseX, mouseY)
 		if PlayerCanInteractHere(idxX, idxY) {
 			m.zones[idxY][idxX].OnClick(m)
