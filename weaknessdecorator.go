@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"math"
 	"strings"
 
@@ -23,6 +24,13 @@ const (
 	DIRECTION_RIGHT = 0b0010
 	DIRECTION_DOWN  = 0b0100
 	DIRECTION_LEFT  = 0b1000
+)
+
+var (
+	//direction array containing weakness to one direction
+	DIRECTION_ARR_ONE_WEAKNESS = []byte{DIRECTION_UP, DIRECTION_RIGHT, DIRECTION_DOWN, DIRECTION_LEFT}
+	//direction array containing weakness to two direction, both direction are opposing to one another
+	DIRECTION_ARR_TWO_WEAKNESS = []byte{DIRECTION_UP | DIRECTION_DOWN, DIRECTION_LEFT | DIRECTION_RIGHT}
 )
 
 func init() {
@@ -136,3 +144,31 @@ func (d *WeaknessDecorator) TakeDamage(dmg int, s *MainScene, card Card) {
 }
 
 func (d *WeaknessDecorator) DoBattle(*CharacterDecorator, *MainScene) {}
+
+type RotatingWeaknessDecorator struct {
+	*WeaknessDecorator
+}
+
+// only works for 4 byte number
+func rotateByte(b byte) byte {
+	h := b << 1
+	excess := h & 0b11110000
+	excess = excess >> 4
+	return (h | excess) & 0b00001111
+}
+func NewRotatingWeaknessDecorator(decorator CardDecorator, direction byte) CardDecorator {
+	weaknessDecor := NewWeaknessDecorator(decorator, direction)
+	return &RotatingWeaknessDecorator{WeaknessDecorator: weaknessDecor.(*WeaknessDecorator)}
+}
+func (t *RotatingWeaknessDecorator) OnPlayerMove(c Card, s *MainScene) {
+	curDirection := t.WeaknessDecorator.Direction
+	// bits.RotateLeft(uint(curDirection), 1)
+	curDirection = rotateByte(curDirection)
+	// newDecor := NewWeaknessDecorator(t.WeaknessDecorator.decorator, curDirection)
+	rota := NewRotatingWeaknessDecorator(t.WeaknessDecorator.decorator, curDirection)
+	fmt.Printf("%b\n", curDirection)
+	newTrans := NewTransitionDecorator(t.decorator, rota, c.(*BaseCard))
+	c.(*BaseCard).decorators[0] = newTrans
+	// c.RemoveDecorator(t)
+	// c.AddDecorator(newWeakness)
+}
