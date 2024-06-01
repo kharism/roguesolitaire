@@ -160,6 +160,23 @@ func NewRotatingWeaknessDecorator(decorator CardDecorator, direction byte) CardD
 	weaknessDecor := NewWeaknessDecorator(decorator, direction)
 	return &RotatingWeaknessDecorator{WeaknessDecorator: weaknessDecor.(*WeaknessDecorator)}
 }
+func (d *RotatingWeaknessDecorator) TakeDirectDamage(dmg int, s *MainScene, card Card) {
+	if c, ok := d.decorator.(CharacterInterface); ok {
+		c.TakeDirectDamage(dmg, s, card)
+	}
+}
+func (d *RotatingWeaknessDecorator) Draw(card *ebiten.Image) {
+	d.WeaknessDecorator.Draw(card)
+}
+
+// take damage but still putting loadout into consideration
+func (d *RotatingWeaknessDecorator) TakeDamage(dmg int, s *MainScene, card Card) {
+	if c, ok := d.decorator.(CharacterInterface); ok {
+		c.TakeDamage(dmg, s, card)
+	}
+}
+
+func (d *RotatingWeaknessDecorator) DoBattle(*CharacterDecorator, *MainScene) {}
 func (t *RotatingWeaknessDecorator) OnPlayerMove(c Card, s *MainScene) {
 	curDirection := t.WeaknessDecorator.Direction
 	// bits.RotateLeft(uint(curDirection), 1)

@@ -41,6 +41,21 @@ func (d *TransitionDecorator) GetType() CardType {
 func (d *TransitionDecorator) OnClick(mainScene *MainScene, source Card) {
 
 }
+func (d *TransitionDecorator) TakeDirectDamage(dmg int, s *MainScene, source Card) {
+	if v, ok := d.Start.(*CharacterDecorator); ok {
+		v.TakeDirectDamage(dmg, s, source)
+	}
+}
+func (d *TransitionDecorator) TakeDamage(dmg int, s *MainScene, source Card) {
+	if v, ok := d.Start.(*CharacterDecorator); ok {
+		v.TakeDamage(dmg, s, source)
+	}
+}
+func (d *TransitionDecorator) DoBattle(c *CharacterDecorator, s *MainScene) {
+	if v, ok := d.Start.(*CharacterDecorator); ok {
+		v.DoBattle(c, s)
+	}
+}
 func (d *TransitionDecorator) GetDescription() string {
 	return d.Start.GetDescription()
 }
