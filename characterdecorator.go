@@ -173,6 +173,18 @@ func NewGoblinDecor() CardDecorator {
 	return &CharacterDecorator{Hp: goblinHP[rand.Int()%len(goblinHP)], image: goblinImg,
 		Name: "Goblin", OnDefeat: GenerateReward(0), OnClickFunc: GenerateCombat(), Description: "A small goblin"}
 }
+func NewXOrg() CardDecorator {
+	xorgHP := []int{25, 30, 35}
+	hp := xorgHP[rand.Int()%len(xorgHP)]
+	org := &CharacterDecorator{Hp: hp, image: orgImage,
+		Name:        "XOrg",
+		OnDefeat:    GenerateReward(1),
+		OnClickFunc: GenerateCombat(),
+		shader:      dakkaShader,
+		Description: "Org but redder\nIt means it is\nThree times as fast"}
+	weakness := &RotatingWeaknessDecorator{&WeaknessDecorator{decorator: org, Direction: DIRECTION_ARR_TWO_WEAKNESS[0]}}
+	return weakness
+}
 func NewSkeletonDecor() CardDecorator {
 	if SkeletonImage == nil {
 		imgReader := bytes.NewReader(SkeletonImage)

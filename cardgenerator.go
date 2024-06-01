@@ -38,11 +38,14 @@ func (g *cardGenerator) GenerateCard(ms *MainScene) Card {
 	case 2:
 		if ms.MonstersDefeated < 10 {
 			baseCard.AddDecorator(NewSkeletonDecor())
-		} else {
+		} else if ms.MonstersDefeated < 20 {
 			org := NewOrgDecor()
 			direction := rand.Int()%15 + 1
 			org = NewWeaknessDecorator(org, byte(direction))
 			baseCard.AddDecorator(org)
+		} else {
+			xorg := NewXOrg()
+			baseCard.AddDecorator(xorg)
 		}
 
 	case 3:
