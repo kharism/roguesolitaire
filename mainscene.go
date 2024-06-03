@@ -46,6 +46,8 @@ type MainScene struct {
 	isDefeated      bool
 	defeatedCounter int // this counter is only used in animation when loosing
 
+	ShowAtk bool
+
 	MonstersDefeated int //
 }
 
@@ -118,6 +120,9 @@ func (m *MainScene) Update() error {
 			}
 
 		}
+	}
+	if m.ShowAtk {
+		attackImg.Update()
 	}
 	return nil
 }
@@ -245,6 +250,9 @@ func (m *MainScene) Draw(screen *ebiten.Image) {
 	}
 
 	m.DrawInfoBg2(screen)
+	if m.ShowAtk {
+		attackImg.Draw(screen)
+	}
 	opt := ebiten.DrawImageOptions{}
 	opt.GeoM.Translate(bgInfoStartX, float64(bgInfoStartY+35+250)+10)
 	screen.DrawImage(coinImg, &opt)
@@ -276,6 +284,11 @@ func (s *MainScene) Load(state MyState, director stagehand.SceneController[MySta
 				s.Character = SwordedKnight.(*SwordChDecorator)
 				s.zones[idx][idx2] = NewBaseCard([]CardDecorator{SwordedKnight}).(*BaseCard)
 				s.CharacterCard = s.zones[idx][idx2]
+			} else if idx == 0 && idx2 == 0 {
+				org := NewOrgDecor()
+				direction := 1
+				org = NewWeaknessDecorator(org, byte(direction))
+				s.zones[idx][idx2] = NewBaseCard([]CardDecorator{org}).(*BaseCard)
 			} else {
 				i := rand.Int() % 3
 				if i == 0 {
