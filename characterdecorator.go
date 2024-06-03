@@ -11,6 +11,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/kharism/hanashi/core"
 )
 
 //go:embed assets/img/Knight.png
@@ -31,6 +32,9 @@ var OrgImage []byte
 //go:embed shaders/dakka.kage
 var DakkaShader []byte
 
+//go:embed assets/img/attack2.png
+var Attack2Png []byte
+
 var PixelFont *text.GoTextFaceSource
 
 var knightImg *ebiten.Image
@@ -39,6 +43,7 @@ var skeletonImg *ebiten.Image
 var orgImage *ebiten.Image
 var face *text.GoTextFace
 var dakkaShader *ebiten.Shader
+var attackImg *core.AnimatedImage
 
 type CharacterDecorator struct {
 	Hp          int
@@ -94,6 +99,20 @@ func init() {
 		fmt.Println(err.Error())
 		log.Fatal(err)
 	}
+	if attackImg == nil {
+		imgReader := bytes.NewReader(Attack2Png)
+		attackImgAll, _, _ := ebitenutil.NewImageFromReader(imgReader)
+		attackAnimParam := core.NewMovableImageParams().WithMoveParam(core.MoveParam{Sx: 0, Sy: 0}).WithScale(&core.ScaleParam{Sx: 0.25, Sy: 0.25})
+		attackImg = &core.AnimatedImage{
+			MovableImage:   core.NewMovableImage(attackImgAll, attackAnimParam),
+			SubImageStartX: 0,
+			SubImageStartY: 0,
+			SubImageWidth:  512,
+			SubImageHeight: 512,
+			FrameCount:     16,
+			Modulo:         1,
+		}
+	}
 }
 func (d *CharacterDecorator) TakeDirectDamage(dmg int, s *MainScene, source Card) {
 	d.Hp -= dmg
@@ -127,6 +146,17 @@ func NewKnightDecor() CardDecorator {
 		scene.OnDefeat()
 	}, Description: "Your Character"}
 }
+func GenerateDoneFunc(s *MainScene, source *CharacterDecorator, card Card) func() {
+	return func() {
+		s.Character.DoBattle(source, s)
+		// jj := rwdGenerator.GenerateReward(0)
+		if source.Hp <= 0 {
+			source.OnDefeat(s, card)
+		}
+		s.ShowAtk = false
+		s.OnPlayerMove()
+	}
+}
 
 // return a function that handle
 func GenerateCombat() func(*MainScene, Card) {
@@ -134,12 +164,13 @@ func GenerateCombat() func(*MainScene, Card) {
 		// posX, posY := source.(*BaseCard).GetPos()
 		// idxX, idxY := PixelToIndex(int(posX), int(posY))
 		// s.Character.Hp -= damage
-		s.Character.DoBattle(source.(*BaseCard).decorators[0].(*CharacterDecorator), s)
-		// jj := rwdGenerator.GenerateReward(0)
-		if source.(*BaseCard).decorators[0].(*CharacterDecorator).Hp <= 0 {
-			source.(*BaseCard).decorators[0].(*CharacterDecorator).OnDefeat(s, source)
-		}
-		s.OnPlayerMove()
+		s.ShowAtk = true
+		posX, posY := source.(*BaseCard).GetPos()
+		attackImg.SetPos(posX-10, posY)
+		attackImg.ScaleParam.Sx = 0.3
+		attackImg.ScaleParam.Sy = 0.3
+		attackImg.Done = GenerateDoneFunc(s, source.(*BaseCard).decorators[0].(*CharacterDecorator), source)
+
 	}
 }
 func GenerateReward(tier int) func(*MainScene, Card) {
