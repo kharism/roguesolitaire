@@ -56,6 +56,7 @@ type CharacterInterface interface {
 	// take damage but still putting loadout into consideration
 	TakeDamage(int, *MainScene, Card)
 	Draw(card *ebiten.Image)
+	GetHP() int
 
 	DoBattle(*CharacterDecorator, *MainScene)
 }
@@ -101,6 +102,9 @@ func (d *CharacterDecorator) TakeDirectDamage(dmg int, s *MainScene, source Card
 
 		d.OnDefeat(s, source)
 	}
+}
+func (d *CharacterDecorator) GetHP() int {
+	return d.Hp
 }
 func (d *CharacterDecorator) TakeDamage(dmg int, s *MainScene, source Card) {
 	// the same with take damage

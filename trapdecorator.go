@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"image"
 	"math"
+	"math/rand"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -49,7 +50,7 @@ func (t *SpikeTrapDecorator) OnClick(state *MainScene, source Card) {
 	idxX, idxY := PixelToIndex(int(posX), int(posY))
 	state.CharacterCard.AddAnimation(core.NewMoveAnimationFromParam(core.MoveParam{Tx: posX, Ty: posY, Speed: CARD_MOVE_SPEED}))
 	// k.OnAccquire(state)
-	state.Character.TakeDirectDamage(1, state, source)
+	state.Character.TakeDirectDamage(t.Hp, state, source)
 	state.zones[idxY][idxX] = state.CharacterCard
 	movedCard, newCardIdxY, newCardIdxX := GetMovedCard(state, idxX, idxY)
 	oldCardPosX, oldCardPosY := movedCard.GetPos()
@@ -65,7 +66,15 @@ func (t *SpikeTrapDecorator) OnClick(state *MainScene, source Card) {
 	PLAYER_IDX_Y = idxY
 	state.OnPlayerMove()
 }
-
+func NewCrimsonTrapDecorator() CardDecorator {
+	Hp := []int{10, 15, 20}
+	return &SpikeTrapDecorator{CharacterDecorator: &CharacterDecorator{image: spike,
+		shader:      dakkaShader,
+		Name:        "Crimson Spike",
+		Hp:          Hp[rand.Int()%len(Hp)],
+		OnDefeat:    GenerateReward(1),
+		Description: "Do direct damage\nequal to its cost\nAn explosion may\nneutralize this"}}
+}
 func NewSpikeTrapDecorator() CardDecorator {
 	return &SpikeTrapDecorator{CharacterDecorator: &CharacterDecorator{image: spike,
 		Name:        "Spike",

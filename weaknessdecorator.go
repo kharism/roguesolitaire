@@ -175,7 +175,38 @@ func (d *RotatingWeaknessDecorator) TakeDamage(dmg int, s *MainScene, card Card)
 		c.TakeDamage(dmg, s, card)
 	}
 }
+func (d *RotatingWeaknessDecorator) OnClick(mainScene *MainScene, source Card) {
+	posX, posY := source.(*BaseCard).GetPos()
+	idxX, idxY := PixelToIndex(int(posX), int(posY))
+	//player come from above
+	if PLAYER_IDX_X == idxX && PLAYER_IDX_Y < idxY && int(d.Direction&DIRECTION_UP) > 0 {
+		if opp, ok := d.decorator.(*CharacterDecorator); ok {
+			opp.OnDefeat(mainScene, source)
+		}
+	} else if PLAYER_IDX_X == idxX && PLAYER_IDX_Y > idxY && int(d.Direction&DIRECTION_DOWN) > 0 {
+		//player come from below
+		if opp, ok := d.decorator.(*CharacterDecorator); ok {
+			opp.OnDefeat(mainScene, source)
+		}
+	} else if PLAYER_IDX_Y == idxY && PLAYER_IDX_X < idxX && int(d.Direction&DIRECTION_LEFT) > 0 {
+		//player come from left
+		if opp, ok := d.decorator.(*CharacterDecorator); ok {
+			opp.OnDefeat(mainScene, source)
+		}
+	} else if PLAYER_IDX_Y == idxY && PLAYER_IDX_X > idxX && int(d.Direction&DIRECTION_RIGHT) > 0 {
+		//player come from right
+		if opp, ok := d.decorator.(*CharacterDecorator); ok {
+			opp.OnDefeat(mainScene, source)
+		}
+	} else {
+		source.(*BaseCard).decorators[0] = d.decorator
+		d.decorator.OnClick(mainScene, source)
+		if d.decorator == source.(*BaseCard).decorators[0] {
+			source.(*BaseCard).decorators[0] = d
+		}
+	}
 
+}
 func (d *RotatingWeaknessDecorator) DoBattle(*CharacterDecorator, *MainScene) {}
 func (t *RotatingWeaknessDecorator) OnPlayerMove(c Card, s *MainScene) {
 	curDirection := t.WeaknessDecorator.Direction

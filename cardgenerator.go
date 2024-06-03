@@ -54,6 +54,10 @@ func (g *cardGenerator) GenerateCard(ms *MainScene) Card {
 		baseCard.AddDecorator(NewChestDecorator())
 	case 5:
 		decorators := []CardDecorator{NewBombDecorator(), NewSpikeTrapDecorator(), NewSpikeTrapDecorator()}
+		if ms.Character.GetHP() >= 20 {
+			decorators[1] = NewCrimsonTrapDecorator()
+			decorators[2] = NewCrimsonTrapDecorator()
+		}
 		decor := decorators[rand.Int()%len(decorators)]
 		baseCard.AddDecorator(decor)
 	}

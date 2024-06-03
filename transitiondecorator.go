@@ -1,6 +1,10 @@
 package main
 
-import "github.com/hajimehoshi/ebiten/v2"
+import (
+	"fmt"
+
+	"github.com/hajimehoshi/ebiten/v2"
+)
 
 type TransitionDecorator struct {
 	Start           CardDecorator
@@ -39,7 +43,7 @@ func (d *TransitionDecorator) GetType() CardType {
 	return d.Start.GetType()
 }
 func (d *TransitionDecorator) OnClick(mainScene *MainScene, source Card) {
-
+	fmt.Println("Transition Decorator clicked")
 }
 func (d *TransitionDecorator) TakeDirectDamage(dmg int, s *MainScene, source Card) {
 	if v, ok := d.Start.(*CharacterDecorator); ok {
