@@ -53,6 +53,9 @@ func NewSwordDecorator() CardDecorator {
 	}, Description: "Gain 10 combat"}
 	return &SwordDecorator{ItemDecorator: j}
 }
+func (d *SwordChDecorator) GetHP() int {
+	return d.chInterface.GetHP()
+}
 func (d *SwordDecorator) Draw(card *ebiten.Image) {
 	d.ItemDecorator.Draw(card)
 
