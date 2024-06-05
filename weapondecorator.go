@@ -56,6 +56,9 @@ func NewSwordDecorator() CardDecorator {
 func (d *SwordChDecorator) GetHP() int {
 	return d.chInterface.GetHP()
 }
+func (d *SwordChDecorator) GetMaxHP() int {
+	return d.chInterface.GetMaxHP()
+}
 func (d *SwordDecorator) Draw(card *ebiten.Image) {
 	d.ItemDecorator.Draw(card)
 

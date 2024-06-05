@@ -47,6 +47,7 @@ var attackImg *core.AnimatedImage
 
 type CharacterDecorator struct {
 	Hp          int
+	MaxHP       int
 	Name        string
 	image       *ebiten.Image
 	OnClickFunc OnInteractFunction
@@ -62,6 +63,7 @@ type CharacterInterface interface {
 	TakeDamage(int, *MainScene, Card)
 	Draw(card *ebiten.Image)
 	GetHP() int
+	GetMaxHP() int
 
 	DoBattle(*CharacterDecorator, *MainScene)
 }
@@ -114,7 +116,13 @@ func init() {
 		}
 	}
 }
+func (d *CharacterDecorator) GetMaxHP() int {
+	return d.MaxHP
+}
 func (d *CharacterDecorator) TakeDirectDamage(dmg int, s *MainScene, source Card) {
+	if dmg <= 0 && d.Hp-dmg > d.MaxHP {
+		dmg = -(d.MaxHP - d.Hp)
+	}
 	d.Hp -= dmg
 	if d.Hp <= 0 {
 		// os.Exit(0)
@@ -139,7 +147,7 @@ func (d *CharacterDecorator) DoBattle(opp *CharacterDecorator, scene *MainScene)
 }
 func NewKnightDecor() CardDecorator {
 
-	return &CharacterDecorator{Hp: 10, image: knightImg, Name: "Knight", OnClickFunc: func(s *MainScene, c Card) {
+	return &CharacterDecorator{Hp: 10, MaxHP: 10, image: knightImg, Name: "Knight", OnClickFunc: func(s *MainScene, c Card) {
 
 	}, OnDefeat: func(scene *MainScene, h Card) {
 		// os.Exit(0)
@@ -254,11 +262,16 @@ func (k *CharacterDecorator) Draw(card *ebiten.Image) {
 	opt.GeoM.Translate(10, 50)
 
 	txtOpt := text.DrawOptions{}
-	txtOpt.GeoM.Scale(0.7, 0.7)
+	txtOpt.GeoM.Scale(0.5, 0.5)
 	txtOpt.GeoM.Translate(80, 6)
 	txtOpt.PrimaryAlign = text.AlignEnd
 	txtOpt.ColorScale.ScaleWithColor(RED)
-	text.Draw(card, fmt.Sprintf("%d", k.Hp), face, &txtOpt)
+	if k.MaxHP > 0 {
+		text.Draw(card, fmt.Sprintf("%d/%d", k.Hp, k.MaxHP), face, &txtOpt)
+	} else {
+		text.Draw(card, fmt.Sprintf("%d", k.Hp), face, &txtOpt)
+	}
+
 	// txtOpt.GeoM.Reset()
 	txtOpt = text.DrawOptions{}
 	txtOpt.PrimaryAlign = text.AlignCenter

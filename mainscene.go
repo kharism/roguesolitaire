@@ -92,7 +92,7 @@ func (m *MainScene) Update() error {
 	// 	fmt.Println(inpututil.MouseButtonPressDuration(ebiten.MouseButtonLeft))
 	// }
 	isClicked, mouseX, mouseY := IsClickedOrTap()
-	if isClicked { //inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
+	if isClicked && !m.ShowAtk { //inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
 		idxX, idxY := PixelToIndex(mouseX, mouseY)
 		if PlayerCanInteractHere(idxX, idxY) {
 			m.zones[idxY][idxX].OnClick(m)
