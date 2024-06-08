@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	// "github.com/hajimehoshi/ebiten/v2/internal/ui"
@@ -33,7 +31,7 @@ func IsClickedOrTap() (bool, int, int) {
 		if inpututil.IsTouchJustReleased(id) {
 
 			posX, posY = int(TouchPos[id].X), int(TouchPos[id].Y)
-			fmt.Println("touch released", id, posX, posY)
+			// fmt.Println("touch released", id, posX, posY)
 
 			return true, posX, posY
 		}

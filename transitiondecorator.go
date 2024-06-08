@@ -55,7 +55,7 @@ func (d *TransitionDecorator) TakeDamage(dmg int, s *MainScene, source Card) {
 		v.TakeDamage(dmg, s, source)
 	}
 }
-func (d *TransitionDecorator) DoBattle(c *CharacterDecorator, s *MainScene) {
+func (d *TransitionDecorator) DoBattle(c CharacterInterface, s *MainScene) {
 	if v, ok := d.Start.(*CharacterDecorator); ok {
 		v.DoBattle(c, s)
 	}

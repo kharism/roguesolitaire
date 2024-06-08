@@ -12,12 +12,29 @@ func init() {
 	generator = cardGenerator{}
 	rwdGenerator = rewardGenerator{}
 }
+func (g *cardGenerator) GenerateTreasure(ms *MainScene) CardDecorator {
+	if ms.LastDefeatedMiniBoss == "Pyro-Eyes" {
+		return NewDiamondDecorator()
+	}
+	return NewCoinDecorator()
+}
 func (g *cardGenerator) GenerateCard(ms *MainScene) Card {
 	baseCard := NewBaseCard([]CardDecorator{})
+
+	// unique boss monsters
+	if ms.Character.GetMaxHP() >= 20 && ms.Character.GetMaxHP() <= 30 {
+		if _, ok := ms.GeneratedBoss["Pyro-Eyes"]; !ok {
+			pyroEyes := NewPyroEyesDecor()
+			baseCard.AddDecorator(pyroEyes)
+			ms.GeneratedBoss["Pyro-Eyes"] = true
+			return baseCard
+		}
+	}
 	p := rand.Int() % 6
 	switch p {
 	case 0:
-		baseCard.AddDecorator(NewCoinDecorator())
+		dd := g.GenerateTreasure(ms)
+		baseCard.AddDecorator(dd)
 	case 1:
 		var decor CardDecorator
 		if ms.State.Coin <= 9 {
@@ -71,7 +88,7 @@ type rewardGenerator struct {
 func (r *rewardGenerator) GenerateReward(tierLevel int) CardDecorator {
 	switch tierLevel {
 	case 0:
-		id := rand.Int() % 3
+		id := rand.Int() % 5
 		switch id {
 		case 0:
 			return NewCoinDecorator()
@@ -80,14 +97,20 @@ func (r *rewardGenerator) GenerateReward(tierLevel int) CardDecorator {
 			// return NewLightPotionDecorator()
 		case 2:
 			return NewMeat()
+		case 3:
+			return NewMeat()
+		case 4:
+			return NewHpUpDecorator()
 		}
 	case 1:
-		id := rand.Int() % 2
+		id := rand.Int() % 3
 		switch id {
 		case 0:
 			return NewLightPotionDecorator()
 		case 1:
 			return NewMedPotionDecorator()
+		case 2:
+			return NewHpUpDecorator()
 		}
 	case 2:
 		return NewSwordDecorator()

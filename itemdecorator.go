@@ -18,6 +18,10 @@ import (
 var CoinImage []byte
 var coinImg *ebiten.Image
 
+//go:embed assets/img/Diamond.png
+var DiamondImage []byte
+var diamondImg *ebiten.Image
+
 //go:embed assets/img/Potion1.png
 var Potion1 []byte
 var potion1 *ebiten.Image
@@ -25,6 +29,10 @@ var potion1 *ebiten.Image
 //go:embed assets/img/Potion2.png
 var Potion2 []byte
 var potion2 *ebiten.Image
+
+//go:embed assets/img/hpup.png
+var HpUp []byte
+var HpUPImg *ebiten.Image
 
 //go:embed assets/img/meat.png
 var Meat []byte
@@ -44,6 +52,10 @@ func GenerateAddCoinFunc(Amount int) OnAccquireFunc {
 	return func(state *MainScene) {
 		fmt.Println("Get coin")
 		state.State.Coin += Amount
+		if state.State.Coin%12 == 0 {
+			state.Character.SetMaxHP(state.Character.GetMaxHP() + 2)
+			state.Character.SetHP(state.Character.GetHP() + 2)
+		}
 	}
 }
 
@@ -136,6 +148,10 @@ func init() {
 		imgReader := bytes.NewReader(CoinImage)
 		coinImg, _, _ = ebitenutil.NewImageFromReader(imgReader)
 	}
+	if diamondImg == nil {
+		imgReader := bytes.NewReader(DiamondImage)
+		diamondImg, _, _ = ebitenutil.NewImageFromReader(imgReader)
+	}
 	if potion1 == nil {
 		imgReader := bytes.NewReader(Potion1)
 		potion1, _, _ = ebitenutil.NewImageFromReader(imgReader)
@@ -143,6 +159,10 @@ func init() {
 	if potion2 == nil {
 		imgReader := bytes.NewReader(Potion2)
 		potion2, _, _ = ebitenutil.NewImageFromReader(imgReader)
+	}
+	if HpUPImg == nil {
+		imgReader := bytes.NewReader(HpUp)
+		HpUPImg, _, _ = ebitenutil.NewImageFromReader(imgReader)
 	}
 	imgReader := bytes.NewReader(Meat)
 	meat, _, _ = ebitenutil.NewImageFromReader(imgReader)
@@ -153,6 +173,13 @@ func NewCoinDecorator() CardDecorator {
 	// 	coinImg, _, _ = ebitenutil.NewImageFromReader(imgReader)
 	// }
 	return &ItemDecorator{image: coinImg, Name: "Coin", OnAccquire: GenerateAddCoinFunc(1), Description: "Add 1 gold coin"}
+}
+func NewDiamondDecorator() CardDecorator {
+	// if coinImg == nil {
+	// 	imgReader := bytes.NewReader(CoinImage)
+	// 	coinImg, _, _ = ebitenutil.NewImageFromReader(imgReader)
+	// }
+	return &ItemDecorator{image: diamondImg, Name: "Diamond", OnAccquire: GenerateAddCoinFunc(3), Description: "Add 3 gold coin"}
 }
 func (c *ItemDecorator) GetDescription() string {
 	return c.Description
@@ -166,6 +193,24 @@ func NewMedPotionDecorator() CardDecorator {
 		// s.Character.TakeDamage(-3)
 		s.Character.TakeDirectDamage(-4, s, nil)
 	}, Description: "Recover 4 HP"}
+}
+func NewHpUpDecorator() CardDecorator {
+	return &ItemDecorator{image: HpUPImg, Name: "HPUp",
+		OnAccquire: func(s *MainScene) {
+			s.Character.SetMaxHP(s.Character.GetMaxHP() + 2)
+			s.Character.SetHP(s.Character.GetHP() + 2)
+			// if _, ok := s.Character.(*CharacterDecorator); ok {
+			// 	s.Character.(*CharacterDecorator).MaxHP += 2
+			// 	s.Character.(*CharacterDecorator).Hp += 2
+			// } else {
+			// 	v := s.Character.(WeaponChDecorator).GetCharacter()
+			// 	v.(*CharacterDecorator).MaxHP += 2
+			// 	v.(*CharacterDecorator).Hp += 2
+			// }
+
+		},
+		Description: "max HP +2",
+	}
 }
 func NewLightPotionDecorator() CardDecorator {
 	// if potion1 == nil {

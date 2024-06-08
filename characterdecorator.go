@@ -29,6 +29,9 @@ var SkeletonImage []byte
 //go:embed assets/img/org.png
 var OrgImage []byte
 
+//go:embed assets/img/pyro-eyes.png
+var PyroEyesImage []byte
+
 //go:embed shaders/dakka.kage
 var DakkaShader []byte
 
@@ -41,6 +44,7 @@ var knightImg *ebiten.Image
 var goblinImg *ebiten.Image
 var skeletonImg *ebiten.Image
 var orgImage *ebiten.Image
+var pyroEyesImg *ebiten.Image
 var face *text.GoTextFace
 var dakkaShader *ebiten.Shader
 var attackImg *core.AnimatedImage
@@ -63,9 +67,12 @@ type CharacterInterface interface {
 	TakeDamage(int, *MainScene, Card)
 	Draw(card *ebiten.Image)
 	GetHP() int
+	SetHP(int)
 	GetMaxHP() int
+	SetMaxHP(int)
+	GetOnDefeat() OnDefeatFunc
 
-	DoBattle(*CharacterDecorator, *MainScene)
+	DoBattle(CharacterInterface, *MainScene)
 }
 type OnInteractFunction func(*MainScene, Card)
 type OnDefeatFunc func(*MainScene, Card)
@@ -100,6 +107,10 @@ func init() {
 	if err != nil {
 		fmt.Println(err.Error())
 		log.Fatal(err)
+	}
+	if pyroEyesImg == nil {
+		imgReader := bytes.NewReader(PyroEyesImage)
+		pyroEyesImg, _, _ = ebitenutil.NewImageFromReader(imgReader)
 	}
 	if attackImg == nil {
 		imgReader := bytes.NewReader(Attack2Png)
@@ -141,9 +152,9 @@ func (d *CharacterDecorator) TakeDamage(dmg int, s *MainScene, source Card) {
 		d.OnDefeat(s, source)
 	}
 }
-func (d *CharacterDecorator) DoBattle(opp *CharacterDecorator, scene *MainScene) {
-	d.TakeDamage(opp.Hp, scene, nil)
-	opp.Hp = 0
+func (d *CharacterDecorator) DoBattle(opp CharacterInterface, scene *MainScene) {
+	d.TakeDamage(opp.GetHP(), scene, nil)
+	opp.SetHP(0)
 }
 func NewKnightDecor() CardDecorator {
 
@@ -154,12 +165,21 @@ func NewKnightDecor() CardDecorator {
 		scene.OnDefeat()
 	}, Description: "Your Character"}
 }
-func GenerateDoneFunc(s *MainScene, source *CharacterDecorator, card Card) func() {
+func (d *CharacterDecorator) GetOnDefeat() OnDefeatFunc {
+	return d.OnDefeat
+}
+func (d *CharacterDecorator) SetHP(a int) {
+	d.Hp = a
+}
+func (d *CharacterDecorator) SetMaxHP(a int) {
+	d.MaxHP = a
+}
+func GenerateDoneFunc(s *MainScene, source CharacterInterface, card Card) func() {
 	return func() {
 		s.Character.DoBattle(source, s)
 		// jj := rwdGenerator.GenerateReward(0)
-		if source.Hp <= 0 {
-			source.OnDefeat(s, card)
+		if source.GetHP() <= 0 {
+			source.GetOnDefeat()(s, card)
 		}
 		s.ShowAtk = false
 		s.OnPlayerMove()
@@ -177,7 +197,7 @@ func GenerateCombat() func(*MainScene, Card) {
 		attackImg.SetPos(posX-10, posY)
 		attackImg.ScaleParam.Sx = 0.3
 		attackImg.ScaleParam.Sy = 0.3
-		attackImg.Done = GenerateDoneFunc(s, source.(*BaseCard).decorators[0].(*CharacterDecorator), source)
+		attackImg.Done = GenerateDoneFunc(s, source.(*BaseCard).decorators[0].(CharacterInterface), source)
 
 	}
 }
@@ -242,6 +262,25 @@ func NewSkeletonDecor() CardDecorator {
 		OnDefeat:    GenerateReward(0),
 		Description: "A small Skeleton",
 	}
+}
+func NewPyroEyesDecor() CardDecorator {
+	pyroEyesHp := []int{30}
+	pyroEyes := &CharacterDecorator{
+		Hp:    pyroEyesHp[rand.Int()%len(pyroEyesHp)],
+		image: pyroEyesImg, Name: "Pyro-Eyes",
+		OnClickFunc: GenerateCombat(),
+		OnDefeat: func(ms *MainScene, source Card) {
+			reward := rwdGenerator.GenerateReward(1)
+			ms.MonstersDefeated += 1
+			ms.LastDefeatedMiniBoss = "Pyro-eyes"
+			transDecorator := NewTransitionDecorator(source.(*BaseCard).decorators[0], reward, source.(*BaseCard))
+			// source.(*BaseCard).decorators[0] = rwdGenerator.GenerateReward(tier)
+			source.(*BaseCard).decorators[0] = transDecorator
+		},
+		Description: "attack adjacent card for\n3 each time you move",
+	}
+	aoeDecor := &AttackOnPlayerMoveDecorator{Damage: 3, CharacterDecorator: pyroEyes}
+	return aoeDecor
 }
 func (k *CharacterDecorator) Update() error {
 	return nil

@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	_ "embed"
-	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -61,8 +60,8 @@ func (b *MenuButton) Update() {
 		b.cursorIn = false
 	}
 	if isClicked { //inpututil.IsMouseButtonJustReleased(ebiten.MouseButton0) {
-		fmt.Println("Click detected")
-		fmt.Println(curX, int(butPosX), butPosX+width, curY, butPosY, butPosY+height)
+		// fmt.Println("Click detected")
+		// fmt.Println(curX, int(butPosX), butPosX+width, curY, butPosY, butPosY+height)
 		if b.cursorIn && b.onClickFunc != nil {
 			b.onClickFunc()
 		}
