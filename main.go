@@ -13,6 +13,7 @@ const (
 	TriggerToMain stagehand.SceneTransitionTrigger = iota
 	TriggerToMenu
 	TriggerToSum
+	TriggerToOPCutscene
 )
 
 var knight CardDecorator
@@ -21,6 +22,7 @@ var card Card
 type MyState struct {
 	PlayerCharacter CardDecorator
 	Coin            int
+	Victory         bool
 	MainScene       *MainScene
 }
 
@@ -38,11 +40,30 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 	return 640, 480
 }
 
+type LayouterImpl struct {
+}
+
+func (l *LayouterImpl) GetLayout() (width, height int) {
+	return 640, 480
+}
+func (l *LayouterImpl) GetNamePosition() (x, y int) {
+	return 0, 512 - 150
+}
+func (l *LayouterImpl) GetTextPosition() (x, y int) {
+	return 0, 512 - 120
+}
+
 func main() {
 	ebiten.SetWindowSize(640, 480)
 	ebiten.SetWindowTitle("Rogue Solitaire")
 	scene1 := &MainScene{}
 	menuScene := &MenuScene{}
+	cutScene1 := Scene1(&LayouterImpl{})
+
+	HanashiScene1 := &HanashiScene{scene: cutScene1}
+	cutScene1.Done = func() {
+		HanashiScene1.director.ProcessTrigger(TriggerToMain)
+	}
 	state := MyState{
 		PlayerCharacter: NewKnightDecor(),
 	}
@@ -54,6 +75,10 @@ func main() {
 	// ruleSet := make(map[stagehand.Scene[MyState]][]stagehand.Directive[MyState])
 	ruleSet := map[stagehand.Scene[MyState]][]stagehand.Directive[MyState]{
 		menuScene: []stagehand.Directive[MyState]{
+			// stagehand.Directive[MyState]{Dest: scene1, Trigger: TriggerToMain, Transition: trans},
+			stagehand.Directive[MyState]{Dest: HanashiScene1, Trigger: TriggerToOPCutscene, Transition: trans3},
+		},
+		HanashiScene1: []stagehand.Directive[MyState]{
 			stagehand.Directive[MyState]{Dest: scene1, Trigger: TriggerToMain, Transition: trans},
 		},
 		scene1: []stagehand.Directive[MyState]{

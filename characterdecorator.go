@@ -32,6 +32,12 @@ var OrgImage []byte
 //go:embed assets/img/pyro-eyes.png
 var PyroEyesImage []byte
 
+//go:embed assets/img/salamandragon.png
+var SalamandragonImage []byte
+
+//go:embed assets/img/ladylab.png
+var BrandishMaiden []byte
+
 //go:embed shaders/dakka.kage
 var DakkaShader []byte
 
@@ -45,6 +51,8 @@ var goblinImg *ebiten.Image
 var skeletonImg *ebiten.Image
 var orgImage *ebiten.Image
 var pyroEyesImg *ebiten.Image
+var salamandragonImg *ebiten.Image
+var brandishMaidenImg *ebiten.Image
 var face *text.GoTextFace
 var dakkaShader *ebiten.Shader
 var attackImg *core.AnimatedImage
@@ -112,6 +120,14 @@ func init() {
 		imgReader := bytes.NewReader(PyroEyesImage)
 		pyroEyesImg, _, _ = ebitenutil.NewImageFromReader(imgReader)
 	}
+	if salamandragonImg == nil {
+		imgReader := bytes.NewReader(SalamandragonImage)
+		salamandragonImg, _, _ = ebitenutil.NewImageFromReader(imgReader)
+	}
+	if brandishMaidenImg == nil {
+		imgReader := bytes.NewReader(BrandishMaiden)
+		brandishMaidenImg, _, _ = ebitenutil.NewImageFromReader(imgReader)
+	}
 	if attackImg == nil {
 		imgReader := bytes.NewReader(Attack2Png)
 		attackImgAll, _, _ := ebitenutil.NewImageFromReader(imgReader)
@@ -123,7 +139,7 @@ func init() {
 			SubImageWidth:  512,
 			SubImageHeight: 512,
 			FrameCount:     16,
-			Modulo:         1,
+			Modulo:         2,
 		}
 	}
 }
@@ -230,6 +246,26 @@ func NewHopGoblinDecor() CardDecorator {
 		shader:      dakkaShader,
 		Description: "A tougher goblin"}
 }
+func NewSalamandragon() CardDecorator {
+	return &CharacterDecorator{Hp: 17, image: salamandragonImg,
+		Name: "Salamandragon", OnDefeat: func(s *MainScene, source Card) {
+			reward := rwdGenerator.GenerateReward(1)
+			posX, posY := source.(*BaseCard).GetPos()
+			idxX, idxY := PixelToIndex(int(posX), int(posY))
+			for i := 0; i < 3; i++ {
+				if i == idxY {
+					continue
+				}
+				if v, ok := s.zones[i][idxX].decorators[0].(CharacterInterface); ok {
+					v.TakeDirectDamage(4, s, s.zones[i][idxX])
+				}
+			}
+			s.MonstersDefeated += 1
+			transDecorator := NewTransitionDecorator(source.(*BaseCard).decorators[0], reward, source.(*BaseCard))
+			// source.(*BaseCard).decorators[0] = rwdGenerator.GenerateReward(tier)
+			source.(*BaseCard).decorators[0] = transDecorator
+		}, OnClickFunc: GenerateCombat(), Description: "inflict 4 damage to\nall cards on its\ncolumn when defeated"}
+}
 func NewGoblinDecor() CardDecorator {
 	goblinHP := []int{2, 3, 4}
 
@@ -263,8 +299,28 @@ func NewSkeletonDecor() CardDecorator {
 		Description: "A small Skeleton",
 	}
 }
+func NewBrandishMaiden() CardDecorator {
+	brandMaidenHp := []int{35}
+	pyroEyes := &CharacterDecorator{
+		Hp:    brandMaidenHp[rand.Int()%len(brandMaidenHp)],
+		image: brandishMaidenImg, Name: "Bradish\nMaiden",
+		OnClickFunc: GenerateCombat(),
+		OnDefeat: func(ms *MainScene, source Card) {
+			// reward := rwdGenerator.GenerateReward(1)
+			// ms.MonstersDefeated += 1
+			// ms.LastDefeatedMiniBoss = "Brandish Maiden"
+			// transDecorator := NewTransitionDecorator(source.(*BaseCard).decorators[0], reward, source.(*BaseCard))
+			// source.(*BaseCard).decorators[0] = rwdGenerator.GenerateReward(tier)
+			// source.(*BaseCard).decorators[0] = transDecorator
+			ms.OnVictory()
+		},
+		Description: "attack adjacent card for\n5 each time you move",
+	}
+	aoeDecor := &AttackOnPlayerMoveDecorator{Damage: 5, CharacterDecorator: pyroEyes}
+	return aoeDecor
+}
 func NewPyroEyesDecor() CardDecorator {
-	pyroEyesHp := []int{30}
+	pyroEyesHp := []int{25}
 	pyroEyes := &CharacterDecorator{
 		Hp:    pyroEyesHp[rand.Int()%len(pyroEyesHp)],
 		image: pyroEyesImg, Name: "Pyro-Eyes",
@@ -316,6 +372,7 @@ func (k *CharacterDecorator) Draw(card *ebiten.Image) {
 	txtOpt.PrimaryAlign = text.AlignCenter
 	txtOpt.GeoM.Scale(0.7, 0.7)
 	txtOpt.GeoM.Translate(70, 56)
+	txtOpt.LineSpacing = 25
 
 	txtOpt.ColorScale.ScaleWithColor(RED)
 	txtOpt.GeoM.Scale(0.6, 0.6)

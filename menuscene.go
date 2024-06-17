@@ -89,7 +89,7 @@ func (s *MenuScene) Load(state MyState, director stagehand.SceneController[MySta
 	s.StartGame.MovableImage = core.NewMovableImage(BtnBg, core.NewMovableImageParams())
 	s.StartGame.Label = "Start Game"
 	s.StartGame.onClickFunc = func() {
-		s.director.ProcessTrigger(TriggerToMain)
+		s.director.ProcessTrigger(TriggerToOPCutscene)
 	}
 	s.StartGame.SetPos(230, 250)
 }

@@ -53,7 +53,7 @@ func NewSwordDecorator() CardDecorator {
 			m.Character = vv
 		}
 
-	}, Description: "Gain 10 combat"}
+	}, Description: "Gain 5 combat"}
 	return &SwordDecorator{ItemDecorator: j}
 }
 func (d *SwordChDecorator) GetHP() int {

@@ -186,6 +186,9 @@ func (m *MainScene) OnDefeat() {
 	m.isDefeated = true
 
 }
+func (m *MainScene) OnVictory() {
+	m.director.ProcessTrigger(TriggerToSum)
+}
 func (m *MainScene) DrawInfoBg2(screen *ebiten.Image) {
 	opts := ebiten.DrawImageOptions{}
 	opts.GeoM.Scale(1.2, 1)
@@ -317,5 +320,6 @@ func (s *MainScene) Layout(outsideWidth, outsideHeight int) (screenWidth, screen
 }
 func (s *MainScene) Unload() MyState {
 	// your unload code
+	s.State.Victory = !s.isDefeated
 	return *s.State
 }

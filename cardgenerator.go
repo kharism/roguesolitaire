@@ -18,6 +18,34 @@ func (g *cardGenerator) GenerateTreasure(ms *MainScene) CardDecorator {
 	}
 	return NewCoinDecorator()
 }
+func (g *cardGenerator) GenerateOrg(ms *MainScene) CardDecorator {
+	if ms.LastDefeatedMiniBoss == "Pyro-Eyes" {
+		kk := rand.Int() % 2
+		if kk == 0 {
+			org := NewOrgDecor()
+			direction := []byte{1, 2, 4, 8}
+			org = NewWeaknessDecorator(org, byte(direction[rand.Int()%len(direction)]))
+			return org
+		} else if kk == 1 {
+			return NewSalamandragon()
+		}
+
+	}
+
+	if ms.MonstersDefeated < 10 {
+		// baseCard.AddDecorator(NewSkeletonDecor())
+		return NewSkeletonDecor()
+	} else if ms.MonstersDefeated < 20 {
+		org := NewOrgDecor()
+		direction := rand.Int()%15 + 1
+		org = NewWeaknessDecorator(org, byte(direction))
+		// baseCard.AddDecorator(org)
+		return org
+	} else {
+		return NewXOrg()
+
+	}
+}
 func (g *cardGenerator) GenerateCard(ms *MainScene) Card {
 	baseCard := NewBaseCard([]CardDecorator{})
 
@@ -27,6 +55,16 @@ func (g *cardGenerator) GenerateCard(ms *MainScene) Card {
 			pyroEyes := NewPyroEyesDecor()
 			baseCard.AddDecorator(pyroEyes)
 			ms.GeneratedBoss["Pyro-Eyes"] = true
+			return baseCard
+		}
+	}
+	maxHp := ms.Character.GetMaxHP()
+	if maxHp >= 30 && maxHp <= 45 {
+		_, ok := ms.GeneratedBoss["Brandish-maiden"]
+		if ms.LastDefeatedMiniBoss == "Pyro-eyes" && !ok {
+			brandish := NewBrandishMaiden()
+			baseCard.AddDecorator(brandish)
+			ms.GeneratedBoss["Brandish-maiden"] = true
 			return baseCard
 		}
 	}
@@ -53,18 +91,8 @@ func (g *cardGenerator) GenerateCard(ms *MainScene) Card {
 		// decor = NewWeaknessDecorator(decor, DIRECTION_UP)
 		baseCard.AddDecorator(decor)
 	case 2:
-		if ms.MonstersDefeated < 10 {
-			baseCard.AddDecorator(NewSkeletonDecor())
-		} else if ms.MonstersDefeated < 20 {
-			org := NewOrgDecor()
-			direction := rand.Int()%15 + 1
-			org = NewWeaknessDecorator(org, byte(direction))
-			baseCard.AddDecorator(org)
-		} else {
-			xorg := NewXOrg()
-			baseCard.AddDecorator(xorg)
-		}
-
+		decor := g.GenerateOrg(ms)
+		baseCard.AddDecorator(decor)
 	case 3:
 		baseCard.AddDecorator(NewSwordDecorator())
 	case 4:
