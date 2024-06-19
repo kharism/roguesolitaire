@@ -8,7 +8,7 @@ go 1.22.0
 
 require (
 	github.com/hajimehoshi/ebiten/v2 v2.7.3
-	github.com/kharism/hanashi v0.0.0-20240522092357-5a1870d2b975
+	github.com/kharism/hanashi v0.0.0-20240619053445-0bc13abec7e9
 )
 
 require (

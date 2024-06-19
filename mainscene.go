@@ -32,16 +32,18 @@ func init() {
 }
 
 type MainScene struct {
-	director      *stagehand.SceneDirector[MyState]
-	State         *MyState
-	Character     CharacterInterface
-	CharacterCard *BaseCard
-	CharacterPosX int
-	CharacterPosY int
-	touchIDs      []ebiten.TouchID
-	zones         [3][3]*BaseCard
-	CurDesc       string
-	CurMovingCard *BaseCard
+	director             *stagehand.SceneDirector[MyState]
+	State                *MyState
+	Character            CharacterInterface
+	CharacterCard        *BaseCard
+	CharacterPosX        int
+	CharacterPosY        int
+	touchIDs             []ebiten.TouchID
+	zones                [3][3]*BaseCard
+	CurDesc              string
+	CurMovingCard        *BaseCard
+	GeneratedBoss        map[string]bool
+	LastDefeatedMiniBoss string
 
 	isDefeated      bool
 	defeatedCounter int // this counter is only used in animation when loosing
@@ -92,7 +94,7 @@ func (m *MainScene) Update() error {
 	// 	fmt.Println(inpututil.MouseButtonPressDuration(ebiten.MouseButtonLeft))
 	// }
 	isClicked, mouseX, mouseY := IsClickedOrTap()
-	if isClicked { //inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
+	if isClicked && !m.ShowAtk { //inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
 		idxX, idxY := PixelToIndex(mouseX, mouseY)
 		if PlayerCanInteractHere(idxX, idxY) {
 			m.zones[idxY][idxX].OnClick(m)
@@ -184,6 +186,15 @@ func (m *MainScene) OnDefeat() {
 	m.isDefeated = true
 
 }
+func (m *MainScene) OnVictory() {
+	m.State.Victory = true
+	if m.State.Coin <= 80 {
+		m.director.ProcessTrigger(TriggerToEnding1)
+	} else {
+		m.director.ProcessTrigger(TriggerToSum)
+	}
+
+}
 func (m *MainScene) DrawInfoBg2(screen *ebiten.Image) {
 	opts := ebiten.DrawImageOptions{}
 	opts.GeoM.Scale(1.2, 1)
@@ -271,6 +282,8 @@ func (s *MainScene) Load(state MyState, director stagehand.SceneController[MySta
 	s.CurMovingCard = nil
 	BORDER_X = make([]int, 4)
 	BORDER_Y = make([]int, 4)
+	s.GeneratedBoss = map[string]bool{}
+	s.LastDefeatedMiniBoss = ""
 	// s.zones[1][1]
 	for idx, _ := range s.zones {
 		BORDER_Y[idx] = BOARD_START_Y + BASE_CARD_HEIGHT*SCALE_CARD*idx + idx*MARGIN_Y
@@ -284,11 +297,6 @@ func (s *MainScene) Load(state MyState, director stagehand.SceneController[MySta
 				s.Character = SwordedKnight.(*SwordChDecorator)
 				s.zones[idx][idx2] = NewBaseCard([]CardDecorator{SwordedKnight}).(*BaseCard)
 				s.CharacterCard = s.zones[idx][idx2]
-			} else if idx == 0 && idx2 == 0 {
-				org := NewOrgDecor()
-				direction := 1
-				org = NewWeaknessDecorator(org, byte(direction))
-				s.zones[idx][idx2] = NewBaseCard([]CardDecorator{org}).(*BaseCard)
 			} else {
 				i := rand.Int() % 3
 				if i == 0 {
@@ -319,5 +327,6 @@ func (s *MainScene) Layout(outsideWidth, outsideHeight int) (screenWidth, screen
 }
 func (s *MainScene) Unload() MyState {
 	// your unload code
+	s.State.Victory = !s.isDefeated
 	return *s.State
 }

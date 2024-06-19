@@ -18,6 +18,7 @@ type SummaryScene struct {
 	knightAnim         *ebiten.Image
 	state              MyState
 	counter            int
+	victory            bool
 	visibleCoinCounter int
 	BackToMenu         MenuButton
 	PlayAgain          MenuButton
@@ -29,18 +30,23 @@ var knightdieanim *ebiten.Image
 
 func (s *SummaryScene) Update() error {
 	s.counter += 1
-	if s.counter == 10 {
-		rect := image.Rectangle{Min: image.Point{64, 0}, Max: image.Point{64 * 2, 64}}
-		s.knightAnim = knightdieanim.SubImage(rect).(*ebiten.Image)
+	if !s.victory {
+		if s.counter == 10 {
+			rect := image.Rectangle{Min: image.Point{64, 0}, Max: image.Point{64 * 2, 64}}
+			s.knightAnim = knightdieanim.SubImage(rect).(*ebiten.Image)
+		}
+		if s.counter == 20 {
+			rect := image.Rectangle{Min: image.Point{64 * 2, 0}, Max: image.Point{64 * 3, 64}}
+			s.knightAnim = knightdieanim.SubImage(rect).(*ebiten.Image)
+		}
+		if s.counter == 30 {
+			rect := image.Rectangle{Min: image.Point{64 * 3, 0}, Max: image.Point{64 * 4, 64}}
+			s.knightAnim = knightdieanim.SubImage(rect).(*ebiten.Image)
+		}
+	} else {
+
 	}
-	if s.counter == 20 {
-		rect := image.Rectangle{Min: image.Point{64 * 2, 0}, Max: image.Point{64 * 3, 64}}
-		s.knightAnim = knightdieanim.SubImage(rect).(*ebiten.Image)
-	}
-	if s.counter == 30 {
-		rect := image.Rectangle{Min: image.Point{64 * 3, 0}, Max: image.Point{64 * 4, 64}}
-		s.knightAnim = knightdieanim.SubImage(rect).(*ebiten.Image)
-	}
+
 	if s.counter >= 60 {
 		if s.visibleCoinCounter < s.state.Coin {
 			diff := s.state.Coin - s.visibleCoinCounter
@@ -116,6 +122,7 @@ func (s *SummaryScene) Load(state MyState, director stagehand.SceneController[My
 	s.state = state
 	s.counter = 0
 	s.visibleCoinCounter = 0
+	s.victory = state.Victory
 
 	s.BackToMenu = MenuButton{}
 	s.BackToMenu.MovableImage = core.NewMovableImage(BtnBg, core.NewMovableImageParams())

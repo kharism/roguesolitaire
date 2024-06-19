@@ -23,6 +23,9 @@ type SwordChDecorator struct {
 	chInterface CharacterInterface
 	durability  int
 }
+type WeaponChDecorator interface {
+	GetCharacter() CharacterInterface
+}
 
 //go:embed assets/img/sword.png
 var sword []byte
@@ -50,11 +53,23 @@ func NewSwordDecorator() CardDecorator {
 			m.Character = vv
 		}
 
-	}, Description: "Gain 10 combat"}
+	}, Description: "Gain 5 combat"}
 	return &SwordDecorator{ItemDecorator: j}
 }
 func (d *SwordChDecorator) GetHP() int {
 	return d.chInterface.GetHP()
+}
+func (d *SwordChDecorator) SetHP(a int) {
+	d.chInterface.SetHP(a)
+}
+func (d *SwordChDecorator) GetMaxHP() int {
+	return d.chInterface.GetMaxHP()
+}
+func (d *SwordChDecorator) SetMaxHP(a int) {
+	d.chInterface.SetMaxHP(a)
+}
+func (d *SwordChDecorator) GetOnDefeat() OnDefeatFunc {
+	return d.chInterface.GetOnDefeat()
 }
 func (d *SwordDecorator) Draw(card *ebiten.Image) {
 	d.ItemDecorator.Draw(card)
@@ -64,7 +79,14 @@ func NewSwordChDecorator(ch CharacterInterface, durability int) CardDecorator {
 	h := &SwordChDecorator{chInterface: ch, durability: durability}
 	return h
 }
-
+func (h *SwordChDecorator) GetCharacter() CharacterInterface {
+	if _, ok := h.chInterface.(*CharacterDecorator); ok {
+		return h.chInterface
+	} else if v, ok := h.chInterface.(WeaponChDecorator); ok {
+		return v.GetCharacter()
+	}
+	return nil
+}
 func (h *SwordChDecorator) Draw(card *ebiten.Image) {
 
 	h.chInterface.Draw(card)
@@ -79,12 +101,13 @@ func (h *SwordChDecorator) Draw(card *ebiten.Image) {
 	txtOpt.ColorScale.ScaleWithColor(BLUE)
 	text.Draw(card, fmt.Sprintf("%d", h.durability), face, &txtOpt)
 }
-func (c *SwordChDecorator) DoBattle(opp *CharacterDecorator, scene *MainScene) {
-	if opp.Hp <= c.durability {
-		c.durability -= opp.Hp
-		opp.Hp = 0
+func (c *SwordChDecorator) DoBattle(opp CharacterInterface, scene *MainScene) {
+	if opp.GetHP() <= c.durability {
+		c.durability -= opp.GetHP()
+		opp.SetHP(0)
 	} else {
-		opp.Hp -= c.durability
+		opp.SetHP(opp.GetHP() - c.durability)
+		// opp.Hp -= c.durability
 		c.durability = 0
 	}
 	if c.durability == 0 {
