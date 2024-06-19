@@ -37,6 +37,12 @@ github.com/kharism/hanashi v0.0.0-20240506135002-d8096640d831 h1:kxYs+MUMRdRqPXg
 github.com/kharism/hanashi v0.0.0-20240506135002-d8096640d831/go.mod h1:qp8FidmS/L/2ghCq9Rx/ChRY0ZBdnlMgCe22/vTVOQ8=
 github.com/kharism/hanashi v0.0.0-20240522092357-5a1870d2b975 h1:bjSjehv/zn/GwBjkV+zF5ELI4AY0g5NqygPjf8gQkdg=
 github.com/kharism/hanashi v0.0.0-20240522092357-5a1870d2b975/go.mod h1:qp8FidmS/L/2ghCq9Rx/ChRY0ZBdnlMgCe22/vTVOQ8=
+github.com/kharism/hanashi v0.0.0-20240610012308-ec620c23842c h1:OXABAXtSrBocbP4TcSG2htk3sSyTRPlFjPvYp4X5F1o=
+github.com/kharism/hanashi v0.0.0-20240610012308-ec620c23842c/go.mod h1:qp8FidmS/L/2ghCq9Rx/ChRY0ZBdnlMgCe22/vTVOQ8=
+github.com/kharism/hanashi v0.0.0-20240614123112-8742d52e53fb h1:D5gbeos/BQ9ksQ0TVB+t1REZKaxi1CY7f1N/pRfBqeU=
+github.com/kharism/hanashi v0.0.0-20240614123112-8742d52e53fb/go.mod h1:qp8FidmS/L/2ghCq9Rx/ChRY0ZBdnlMgCe22/vTVOQ8=
+github.com/kharism/hanashi v0.0.0-20240619053445-0bc13abec7e9 h1:mfTCuxGZz+nD+pfab+ehXHXzgUMZqPNMoZu07qA8E5I=
+github.com/kharism/hanashi v0.0.0-20240619053445-0bc13abec7e9/go.mod h1:qp8FidmS/L/2ghCq9Rx/ChRY0ZBdnlMgCe22/vTVOQ8=
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
