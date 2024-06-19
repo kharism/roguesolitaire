@@ -61,7 +61,7 @@ func (g *cardGenerator) GenerateCard(ms *MainScene) Card {
 	maxHp := ms.Character.GetMaxHP()
 	if maxHp >= 30 && maxHp <= 45 {
 		_, ok := ms.GeneratedBoss["Brandish-maiden"]
-		if ms.LastDefeatedMiniBoss == "Pyro-eyes" && !ok {
+		if ms.LastDefeatedMiniBoss == "Pyro-Eyes" && !ok {
 			brandish := NewBrandishMaiden()
 			baseCard.AddDecorator(brandish)
 			ms.GeneratedBoss["Brandish-maiden"] = true

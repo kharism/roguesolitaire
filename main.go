@@ -5,6 +5,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/joelschutz/stagehand"
+	"github.com/kharism/hanashi/core"
 )
 
 type Game struct{}
@@ -14,6 +15,7 @@ const (
 	TriggerToMenu
 	TriggerToSum
 	TriggerToOPCutscene
+	TriggerToEnding1
 )
 
 var knight CardDecorator
@@ -59,11 +61,24 @@ func main() {
 	scene1 := &MainScene{}
 	menuScene := &MenuScene{}
 	cutScene1 := Scene1(&LayouterImpl{})
+	endingScene1 := Ending1(&LayouterImpl{})
 
 	HanashiScene1 := &HanashiScene{scene: cutScene1}
 	cutScene1.Done = func() {
 		HanashiScene1.director.ProcessTrigger(TriggerToMain)
 	}
+
+	HanashiScene2 := &HanashiScene{scene: endingScene1}
+	HanashiScene2.SkipButton = &MenuButton{
+		MovableImage: core.NewMovableImage(BtnBg, core.NewMovableImageParams()),
+		onClickFunc: func() {
+			HanashiScene2.director.ProcessTrigger(TriggerToSum)
+		},
+	}
+	endingScene1.Done = func() {
+		HanashiScene2.director.ProcessTrigger(TriggerToSum)
+	}
+
 	state := MyState{
 		PlayerCharacter: NewKnightDecor(),
 	}
@@ -81,8 +96,12 @@ func main() {
 		HanashiScene1: []stagehand.Directive[MyState]{
 			stagehand.Directive[MyState]{Dest: scene1, Trigger: TriggerToMain, Transition: trans},
 		},
+		HanashiScene2: []stagehand.Directive[MyState]{
+			stagehand.Directive[MyState]{Dest: summary, Trigger: TriggerToSum, Transition: trans3},
+		},
 		scene1: []stagehand.Directive[MyState]{
 			stagehand.Directive[MyState]{Dest: summary, Trigger: TriggerToSum, Transition: trans3},
+			stagehand.Directive[MyState]{Dest: HanashiScene2, Trigger: TriggerToEnding1, Transition: trans3},
 		},
 		summary: []stagehand.Directive[MyState]{
 			stagehand.Directive[MyState]{Dest: menuScene, Trigger: TriggerToMenu, Transition: trans2},

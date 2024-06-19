@@ -328,7 +328,7 @@ func NewPyroEyesDecor() CardDecorator {
 		OnDefeat: func(ms *MainScene, source Card) {
 			reward := rwdGenerator.GenerateReward(1)
 			ms.MonstersDefeated += 1
-			ms.LastDefeatedMiniBoss = "Pyro-eyes"
+			ms.LastDefeatedMiniBoss = "Pyro-Eyes"
 			transDecorator := NewTransitionDecorator(source.(*BaseCard).decorators[0], reward, source.(*BaseCard))
 			// source.(*BaseCard).decorators[0] = rwdGenerator.GenerateReward(tier)
 			source.(*BaseCard).decorators[0] = transDecorator

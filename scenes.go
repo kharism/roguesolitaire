@@ -23,6 +23,10 @@ var bradamante *ebiten.Image
 var bgimg2 []byte
 var bg2 *ebiten.Image
 
+//go:embed assets/img/ending1.png
+var bgimg3 []byte
+var bg3 *ebiten.Image
+
 func ReadImgFromBytes(raw []byte) *ebiten.Image {
 	reader := bytes.NewReader(raw)
 	h, _, _ := ebitenutil.NewImageFromReader(reader)
@@ -153,6 +157,95 @@ func Scene1(layouter core.GetLayouter) *core.Scene {
 		core.NewDialogueEvent("", "What kind of obstacle lays's\nbetween him and isolde?", face),
 	}
 
+	scene.TxtBg = ebiten.NewImage(640, 200)
+	scene.TxtBg.Fill(color.Black)
+	scene.Events[0].Execute(scene)
+	return scene
+}
+func Ending1(layouter core.GetLayouter) *core.Scene {
+	scene := core.NewScene()
+	scene.SetLayouter(layouter)
+
+	bg1 = ReadImgFromBytes(bgimg1)
+	// knight = ReadImgFromBytes(knightImg)
+	// bradamante = ReadImgFromBytes(bradamanteImg)
+
+	bg3 = ReadImgFromBytes(bgimg3)
+	scene.Characters = []*core.Character{
+		core.NewCharacterImage("Charlie", knightImg),
+		core.NewCharacterImage("Brandish Maiden", brandishMaidenImg),
+	}
+	scene.FontFace = face
+	scene.Events = []core.Event{
+		&core.ComplexEvent{Events: []core.Event{
+			core.NewBgChangeEvent(bg3, core.MoveParam{Sx: 0, Sy: 200, Tx: 0, Ty: 0, Speed: 3}, nil),
+			core.NewCharacterAddEvent("Charlie", &core.MoveParam{440, 400, 440, 200, 3}, &core.ScaleParam{-1.4, 1.4, 32, 32}),
+			core.NewCharacterAddEvent("Brandish Maiden", &core.MoveParam{140, 400, 140, 200, 3}, &core.ScaleParam{-1.4, 1.4, 32, 32}),
+		}},
+		&core.ComplexEvent{Events: []core.Event{
+			core.NewCharacterMoveEvent("Charlie", core.MoveParam{440, 200, 300, 200, 3}),
+			core.NewDialogueEvent("Charlie", "Brandish maiden, I have completed\nyour challenge", face),
+		}},
+		&core.ComplexEvent{Events: []core.Event{
+			core.NewCharacterMoveEvent("Charlie", core.MoveParam{440, 200, 300, 200, 3}),
+			core.NewDialogueEvent("Charlie", "Now I ask for my reward of\nbountyful chest", face),
+		}},
+		&core.ComplexEvent{Events: []core.Event{
+			&core.CharacterComplexMoveEvent{Name: "Brandish Maiden", AnimationQueue: []core.Animation{
+				core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 180, Speed: 7}),
+				core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 200, Speed: 7}).SetSleepPost(1 * time.Second),
+				core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 180, Speed: 7}),
+				core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 200, Speed: 7}),
+			}},
+			core.NewDialogueEvent("Brandish Maiden", "You're looking at it", face),
+		}},
+		&core.ComplexEvent{Events: []core.Event{
+			// core.NewCharacterMoveEvent("Charlie", core.MoveParam{440, 200, 300, 200, 3}),
+			core.NewDialogueEvent("Charlie", "I'm Sorry??", face),
+		}},
+		&core.ComplexEvent{Events: []core.Event{
+			&core.CharacterComplexMoveEvent{Name: "Brandish Maiden", AnimationQueue: []core.Animation{
+				core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 180, Speed: 7}),
+				core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 200, Speed: 7}).SetSleepPost(1 * time.Second),
+				core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 180, Speed: 7}),
+				core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 200, Speed: 7}),
+			}},
+			core.NewDialogueEvent("Brandish Maiden", "The prize is becoming my husband", face),
+		}},
+		&core.ComplexEvent{Events: []core.Event{
+			// &core.CharacterComplexMoveEvent{Name: "Brandish Maiden", AnimationQueue: []core.Animation{
+			// 	core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 180, Speed: 7}),
+			// 	core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 200, Speed: 7}).SetSleepPost(1 * time.Second),
+			// 	core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 180, Speed: 7}),
+			// 	core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 200, Speed: 7}),
+			// }},
+			core.NewDialogueEvent("Charlie", "But the bountyful chest....", face),
+		}},
+		core.NewDialogueEvent("Charlie", "*stare*...", face),
+		core.NewDialogueEvent("Charlie", "ooh, I get it", face),
+		&core.ComplexEvent{Events: []core.Event{
+			&core.CharacterComplexMoveEvent{Name: "Brandish Maiden", AnimationQueue: []core.Animation{
+				core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 180, Speed: 7}),
+				core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 200, Speed: 7}).SetSleepPost(1 * time.Second),
+				core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 180, Speed: 7}),
+				core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 200, Speed: 7}),
+			}},
+			core.NewDialogueEvent("Brandish Maiden", "Now, shall we test your \"close\nquarter\" combat further?", face),
+		}},
+		core.NewDialogueEvent("Brandish Maiden", "*wink* *wink*", face),
+		core.NewDialogueEvent("Charlie", "SURE!!!", face),
+		&core.ComplexEvent{Events: []core.Event{
+			&core.CharacterComplexMoveEvent{Name: "Brandish Maiden", AnimationQueue: []core.Animation{
+				&core.ScaleAnimation{Tsy: 1.4, Tsx: 1.4, SpeedX: 0.1, SpeedY: 0.1, CenterX: 32, CenterY: 32},
+			}},
+			core.NewDialogueEvent("Brandish Maiden", "TO MY QUARTER", face),
+		}},
+		&core.ComplexEvent{Events: []core.Event{
+			core.NewDialogueEvent("", "", face),
+			core.NewCharacterMoveEvent("Brandish Maiden", core.MoveParam{Tx: -70, Ty: 200, Speed: 10}),
+			core.NewCharacterMoveEvent("Charlie", core.MoveParam{Tx: -70, Ty: 200, Speed: 10}),
+		}},
+	}
 	scene.TxtBg = ebiten.NewImage(640, 200)
 	scene.TxtBg.Fill(color.Black)
 	scene.Events[0].Execute(scene)

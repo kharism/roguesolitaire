@@ -187,7 +187,13 @@ func (m *MainScene) OnDefeat() {
 
 }
 func (m *MainScene) OnVictory() {
-	m.director.ProcessTrigger(TriggerToSum)
+	m.State.Victory = true
+	if m.State.Coin <= 80 {
+		m.director.ProcessTrigger(TriggerToEnding1)
+	} else {
+		m.director.ProcessTrigger(TriggerToSum)
+	}
+
 }
 func (m *MainScene) DrawInfoBg2(screen *ebiten.Image) {
 	opts := ebiten.DrawImageOptions{}
@@ -277,6 +283,7 @@ func (s *MainScene) Load(state MyState, director stagehand.SceneController[MySta
 	BORDER_X = make([]int, 4)
 	BORDER_Y = make([]int, 4)
 	s.GeneratedBoss = map[string]bool{}
+	s.LastDefeatedMiniBoss = ""
 	// s.zones[1][1]
 	for idx, _ := range s.zones {
 		BORDER_Y[idx] = BOARD_START_Y + BASE_CARD_HEIGHT*SCALE_CARD*idx + idx*MARGIN_Y
