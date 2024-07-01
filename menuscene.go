@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	_ "embed"
+	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -20,8 +21,9 @@ var btnBg []byte
 var BtnBg *ebiten.Image
 
 type MenuScene struct {
-	director  *stagehand.SceneDirector[MyState]
-	StartGame MenuButton
+	director    *stagehand.SceneDirector[MyState]
+	StartGame   MenuButton
+	musicPlayer *AudioPlayer
 }
 type MenuButton struct {
 	*core.MovableImage
@@ -88,7 +90,18 @@ func (s *MenuScene) Load(state MyState, director stagehand.SceneController[MySta
 	s.StartGame = MenuButton{}
 	s.StartGame.MovableImage = core.NewMovableImage(BtnBg, core.NewMovableImageParams())
 	s.StartGame.Label = "Start Game"
+	if s.musicPlayer == nil {
+		var err error
+		s.musicPlayer, err = NewAudioPlayer(audioContext, "assets/music/pixel-fight-8-bit-arcade-music-background-music-for-video-208775.mp3", typeMP3)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+	}
+
+	s.musicPlayer.audioPlayer.Play()
 	s.StartGame.onClickFunc = func() {
+
+		// Layout.musicPlayer = nil
 		s.director.ProcessTrigger(TriggerToOPCutscene)
 	}
 	s.StartGame.SetPos(230, 250)
@@ -98,5 +111,6 @@ func (s *MenuScene) Layout(outsideWidth, outsideHeight int) (screenWidth, screen
 }
 func (s *MenuScene) Unload() MyState {
 	// your unload code
+	s.musicPlayer.audioPlayer.Pause()
 	return MyState{}
 }
