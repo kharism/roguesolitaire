@@ -142,8 +142,23 @@ func (d *WeaknessDecorator) TakeDamage(dmg int, s *MainScene, card Card) {
 		c.TakeDamage(dmg, s, card)
 	}
 }
+func (d *WeaknessDecorator) GetHP() int {
+	return d.decorator.(CharacterInterface).GetHP()
+}
+func (d *WeaknessDecorator) SetHP(hp int) {
+	d.decorator.(CharacterInterface).SetHP(hp)
+}
+func (d *WeaknessDecorator) GetMaxHP() int {
+	return d.decorator.(CharacterInterface).GetMaxHP()
+}
+func (d *WeaknessDecorator) SetMaxHP(hp int) {
+	d.decorator.(CharacterInterface).SetMaxHP(hp)
+}
+func (d *WeaknessDecorator) GetOnDefeat() OnDefeatFunc {
+	return d.decorator.(CharacterInterface).GetOnDefeat()
+}
 
-func (d *WeaknessDecorator) DoBattle(*CharacterDecorator, *MainScene) {}
+func (d *WeaknessDecorator) DoBattle(CharacterInterface, *MainScene) {}
 
 type RotatingWeaknessDecorator struct {
 	*WeaknessDecorator

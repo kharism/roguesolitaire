@@ -54,9 +54,12 @@ func (s *HanashiScene) Layout(outsideWidth, outsideHeight int) (screenWidth, scr
 }
 func (s *HanashiScene) Unload() MyState {
 	// your unload code
-	var f func()
-	f = s.scene.Done
-	s.scene = Scene1(Layout)
-	s.scene.Done = f
+	// s.scene.Events[0].Execute(s.scene)
+	s.scene.EventIndex = 0
+	s.scene.CurCharName = ""
+	s.scene.CurDialog = ""
+	// s.scene.ViewableCharacters = []*core.Character{}
+	s.scene.VisibleDialog = ""
+
 	return s.State
 }
