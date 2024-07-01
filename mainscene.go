@@ -51,6 +51,8 @@ type MainScene struct {
 	ShowAtk bool
 
 	MonstersDefeated int //
+
+	musicPlayer *AudioPlayer
 }
 
 func NewMainScene() *MainScene {
@@ -108,7 +110,10 @@ func (m *MainScene) Update() error {
 	}
 	if m.defeatedCounter%60 == 59 {
 		// m.defeatedCounter = 0
+		m.musicPlayer.audioPlayer.Pause()
+		fmt.Println(m.musicPlayer.audioPlayer.IsPlaying())
 		m.director.ProcessTrigger(TriggerToSum)
+		return nil
 	}
 	cardIdx, cardIdy := PixelToIndex(mouseX, mouseY)
 	if cardIdx >= 0 && cardIdy >= 0 {
@@ -126,6 +131,10 @@ func (m *MainScene) Update() error {
 	if m.ShowAtk {
 		attackImg.Update()
 	}
+	// if Layout.musicPlayer != nil {
+	// 	Layout.musicPlayer.update()
+	// }
+
 	return nil
 }
 
@@ -321,6 +330,20 @@ func (s *MainScene) Load(state MyState, director stagehand.SceneController[MySta
 		BORDER_X[3] = BOARD_START_X + BASE_CARD_WIDTH*SCALE_CARD*3 + 3*MARGIN_X
 	}
 	BORDER_Y[3] = BOARD_START_Y + BASE_CARD_HEIGHT*SCALE_CARD*3 + 3*MARGIN_Y
+
+	//music stuff
+	if s.musicPlayer == nil {
+		m, err := NewAudioPlayer(audioContext, "assets/music/battle-time-178551.mp3", typeMP3)
+		if err != nil {
+			fmt.Println(err.Error())
+			return
+			// return nil, err
+		}
+		s.musicPlayer = m
+		s.musicPlayer.audioPlayer.Play()
+	}
+
+	// m.audioPlayer.Play()
 }
 func (s *MainScene) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
 	return 640, 480
@@ -328,5 +351,6 @@ func (s *MainScene) Layout(outsideWidth, outsideHeight int) (screenWidth, screen
 func (s *MainScene) Unload() MyState {
 	// your unload code
 	s.State.Victory = !s.isDefeated
+	s.musicPlayer.audioPlayer.Pause()
 	return *s.State
 }

@@ -1,9 +1,16 @@
 package main
 
 import (
+	"io"
 	"log"
+	"os"
+	"time"
+
+	_ "embed"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
+	"github.com/hajimehoshi/ebiten/v2/audio/mp3"
 	"github.com/joelschutz/stagehand"
 	"github.com/kharism/hanashi/core"
 )
@@ -17,9 +24,134 @@ const (
 	TriggerToOPCutscene
 	TriggerToEnding1
 )
+const (
+	sampleRate = 48000
+)
 
 var knight CardDecorator
 var card Card
+
+// var musicPlayer *AudioPlayer
+var musicPlayerCh chan *AudioPlayer
+var audioContext *audio.Context
+
+type musicType int
+
+const (
+	typeOgg musicType = iota
+	typeMP3
+)
+
+func (t musicType) String() string {
+	switch t {
+	case typeOgg:
+		return "Ogg"
+	case typeMP3:
+		return "MP3"
+	default:
+		panic("not reached")
+	}
+}
+
+type AudioPlayer struct {
+	audioContext *audio.Context
+	audioPlayer  *audio.Player
+	current      time.Duration
+	total        time.Duration
+	seBytes      []byte
+	seCh         chan []byte
+
+	volume128 int
+
+	musicType musicType
+}
+
+func (p *AudioPlayer) Close() error {
+	return p.audioPlayer.Close()
+}
+func (p *AudioPlayer) update() error {
+	select {
+	case p.seBytes = <-p.seCh:
+		close(p.seCh)
+		p.seCh = nil
+	default:
+	}
+	p.playSEIfNeeded()
+	return nil
+}
+func (p *AudioPlayer) shouldPlaySE() bool {
+	if p.seBytes == nil {
+		// Bytes for the SE is not loaded yet.
+		return false
+	}
+	return false
+}
+
+func (p *AudioPlayer) playSEIfNeeded() {
+	// if !p.shouldPlaySE() {
+	// 	return
+	// }
+	// sePlayer := p.audioContext.NewPlayerFromBytes(p.seBytes)
+	// sePlayer.Play()
+
+}
+
+//go:embed assets/music/battle-time-178551.mp3
+var battleMusic []byte
+
+//go:embed assets/music/pixel-fight-8-bit-arcade-music-background-music-for-video-208775.mp3
+var arcadeMusic []byte
+
+func NewAudioPlayer(audioContext *audio.Context, audioPath string, musicType musicType) (*AudioPlayer, error) {
+	type audioStream interface {
+		io.ReadSeeker
+		Length() int64
+	}
+	const bytesPerSample = 4 // TODO: This should be defined in audio package
+
+	var s audioStream
+	audio, err := os.Open(audioPath)
+	if err != nil {
+		return nil, err
+	}
+	// defer audio.Close()
+	switch musicType {
+
+	case typeMP3:
+		var err error
+		s, err = mp3.DecodeWithoutResampling(audio)
+		if err != nil {
+			return nil, err
+		}
+	default:
+		panic("not reached")
+	}
+
+	p, err := audioContext.NewPlayer(s)
+	if err != nil {
+		return nil, err
+	}
+
+	player := &AudioPlayer{
+		audioContext: audioContext,
+		audioPlayer:  p,
+		total:        time.Second * time.Duration(s.Length()) / bytesPerSample / sampleRate,
+		volume128:    128,
+		seCh:         make(chan []byte),
+		seBytes:      []byte{},
+		musicType:    musicType,
+	}
+	if player.total == 0 {
+		player.total = 1
+	}
+
+	// player.audioPlayer.Play()
+
+	return player, nil
+}
+
+// which SE we should play
+var seSignal chan string
 
 type MyState struct {
 	PlayerCharacter CardDecorator
@@ -43,7 +175,10 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 }
 
 type LayouterImpl struct {
+	musicPlayer *AudioPlayer
 }
+
+var Layout *LayouterImpl
 
 func (l *LayouterImpl) GetLayout() (width, height int) {
 	return 640, 480
@@ -56,12 +191,15 @@ func (l *LayouterImpl) GetTextPosition() (x, y int) {
 }
 
 func main() {
+	audioContext = audio.NewContext(sampleRate)
 	ebiten.SetWindowSize(640, 480)
 	ebiten.SetWindowTitle("Rogue Solitaire")
 	scene1 := &MainScene{}
 	menuScene := &MenuScene{}
-	cutScene1 := Scene1(&LayouterImpl{})
-	endingScene1 := Ending1(&LayouterImpl{})
+	Layout = &LayouterImpl{}
+
+	cutScene1 := Scene1(Layout)
+	endingScene1 := Ending1(Layout)
 
 	HanashiScene1 := &HanashiScene{scene: cutScene1}
 	cutScene1.Done = func() {
@@ -109,6 +247,7 @@ func main() {
 		},
 	}
 	manager := stagehand.NewSceneDirector[MyState](menuScene, state, ruleSet)
+	// musicPlayer, _ = NewAudioPlayer(audioContext, arcadeMusic, typeMP3)
 
 	if err := ebiten.RunGame(manager); err != nil {
 		log.Fatal(err)
