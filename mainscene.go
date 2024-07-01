@@ -333,15 +333,15 @@ func (s *MainScene) Load(state MyState, director stagehand.SceneController[MySta
 
 	//music stuff
 	if s.musicPlayer == nil {
-		m, err := NewAudioPlayer(audioContext, "assets/music/battle-time-178551.mp3", typeMP3)
+		m, err := NewAudioPlayer(audioContext, battleMusic, typeMP3)
 		if err != nil {
 			fmt.Println(err.Error())
 			return
 			// return nil, err
 		}
 		s.musicPlayer = m
-		s.musicPlayer.audioPlayer.Play()
 	}
+	s.musicPlayer.audioPlayer.Play()
 
 	// m.audioPlayer.Play()
 }
@@ -351,6 +351,7 @@ func (s *MainScene) Layout(outsideWidth, outsideHeight int) (screenWidth, screen
 func (s *MainScene) Unload() MyState {
 	// your unload code
 	s.State.Victory = !s.isDefeated
+	s.musicPlayer.audioPlayer.Rewind()
 	s.musicPlayer.audioPlayer.Pause()
 	return *s.State
 }

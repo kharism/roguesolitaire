@@ -92,15 +92,18 @@ func (s *MenuScene) Load(state MyState, director stagehand.SceneController[MySta
 	s.StartGame.Label = "Start Game"
 	if s.musicPlayer == nil {
 		var err error
-		s.musicPlayer, err = NewAudioPlayer(audioContext, "assets/music/pixel-fight-8-bit-arcade-music-background-music-for-video-208775.mp3", typeMP3)
+		s.musicPlayer, err = NewAudioPlayer(audioContext, arcadeMusic, typeMP3)
 		if err != nil {
 			fmt.Println(err.Error())
 		}
+		s.musicPlayer.audioPlayer.Play()
+	} else {
+		// s.musicPlayer.audioPlayer.Rewind()
+		s.musicPlayer.audioPlayer.Play()
 	}
 
-	s.musicPlayer.audioPlayer.Play()
+	// s.musicPlayer.audioPlayer.Play()
 	s.StartGame.onClickFunc = func() {
-
 		// Layout.musicPlayer = nil
 		s.director.ProcessTrigger(TriggerToOPCutscene)
 	}
@@ -111,6 +114,7 @@ func (s *MenuScene) Layout(outsideWidth, outsideHeight int) (screenWidth, screen
 }
 func (s *MenuScene) Unload() MyState {
 	// your unload code
+	s.musicPlayer.audioPlayer.Rewind()
 	s.musicPlayer.audioPlayer.Pause()
 	return MyState{}
 }
