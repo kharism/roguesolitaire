@@ -35,6 +35,7 @@ func (m *HanashiScene) Draw(screen *ebiten.Image) {
 
 func (s *HanashiScene) Load(state MyState, director stagehand.SceneController[MyState]) {
 	s.director = director.(*stagehand.SceneDirector[MyState]) // This type assertion is important
+	// s.scene.EventIndex = 0
 	s.State = state
 	if s.SkipButton == nil {
 		s.SkipButton = &MenuButton{
@@ -53,6 +54,9 @@ func (s *HanashiScene) Layout(outsideWidth, outsideHeight int) (screenWidth, scr
 }
 func (s *HanashiScene) Unload() MyState {
 	// your unload code
-
+	var f func()
+	f = s.scene.Done
+	s.scene = Scene1(Layout)
+	s.scene.Done = f
 	return s.State
 }

@@ -1,9 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"io"
 	"log"
-	"os"
 	"time"
 
 	_ "embed"
@@ -102,7 +102,7 @@ var battleMusic []byte
 //go:embed assets/music/pixel-fight-8-bit-arcade-music-background-music-for-video-208775.mp3
 var arcadeMusic []byte
 
-func NewAudioPlayer(audioContext *audio.Context, audioPath string, musicType musicType) (*AudioPlayer, error) {
+func NewAudioPlayer(audioContext *audio.Context, audioByte []byte, musicType musicType) (*AudioPlayer, error) {
 	type audioStream interface {
 		io.ReadSeeker
 		Length() int64
@@ -110,16 +110,16 @@ func NewAudioPlayer(audioContext *audio.Context, audioPath string, musicType mus
 	const bytesPerSample = 4 // TODO: This should be defined in audio package
 
 	var s audioStream
-	audio, err := os.Open(audioPath)
-	if err != nil {
-		return nil, err
-	}
+	// audio, err := os.Open(audioPath)
+	// if err != nil {
+	// 	return nil, err
+	// }
 	// defer audio.Close()
 	switch musicType {
 
 	case typeMP3:
 		var err error
-		s, err = mp3.DecodeWithoutResampling(audio)
+		s, err = mp3.DecodeWithoutResampling(bytes.NewReader(audioByte))
 		if err != nil {
 			return nil, err
 		}
@@ -136,7 +136,7 @@ func NewAudioPlayer(audioContext *audio.Context, audioPath string, musicType mus
 		audioContext: audioContext,
 		audioPlayer:  p,
 		total:        time.Second * time.Duration(s.Length()) / bytesPerSample / sampleRate,
-		volume128:    128,
+		volume128:    32,
 		seCh:         make(chan []byte),
 		seBytes:      []byte{},
 		musicType:    musicType,
