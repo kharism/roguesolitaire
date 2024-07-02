@@ -162,6 +162,40 @@ func Scene1(layouter core.GetLayouter) *core.Scene {
 	scene.Events[0].Execute(scene)
 	return scene
 }
+func Ending2(layouter core.GetLayouter) *core.Scene {
+	scene := core.NewScene()
+	scene.SetLayouter(layouter)
+
+	bg1 = ReadImgFromBytes(bgimg1)
+	// knight = ReadImgFromBytes(knightImg)
+	bradamante = ReadImgFromBytes(bradamanteImg)
+
+	bg2 = ReadImgFromBytes(bgimg2)
+	scene.Characters = []*core.Character{
+		core.NewCharacterImage("Charlie", knightImg),
+		core.NewCharacterImage("Isolde", bradamante),
+	}
+	scene.FontFace = face
+	scene.Events = []core.Event{
+		&core.ComplexEvent{Events: []core.Event{
+			core.NewBgChangeEvent(bg1, core.MoveParam{Sx: 0, Sy: 200, Tx: 0, Ty: 0, Speed: 3}, nil),
+			core.NewCharacterAddEvent("Charlie", &core.MoveParam{440, 440, 440, 240, 3}, &core.ScaleParam{-1.4, 1.4, 32, 32}),
+			core.NewCharacterAddEvent("Isolde", &core.MoveParam{140, 440, 140, 240, 3}, &core.ScaleParam{1.4, 1.4, 32, 32}),
+		}},
+		&core.ComplexEvent{Events: []core.Event{
+			core.NewCharacterMoveEvent("Charlie", core.MoveParam{440, 240, 340, 240, 5}),
+			core.NewDialogueEvent("Charlie", "Lady Isolde...", face),
+		}},
+		&core.ComplexEvent{Events: []core.Event{
+			// core.NewCharacterMoveEvent("Charlie", core.MoveParam{440, 240, 340, 240, 5}),
+			core.NewDialogueEvent("Charlie", "I've managed to gather 80\ngold coins as you asked", face),
+		}},
+	}
+	scene.TxtBg = ebiten.NewImage(640, 200)
+	scene.TxtBg.Fill(color.Black)
+	scene.Events[0].Execute(scene)
+	return scene
+}
 func Ending1(layouter core.GetLayouter) *core.Scene {
 	scene := core.NewScene()
 	scene.SetLayouter(layouter)

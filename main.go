@@ -23,6 +23,7 @@ const (
 	TriggerToSum
 	TriggerToOPCutscene
 	TriggerToEnding1
+	TriggerToEnding2
 )
 const (
 	sampleRate = 48000
@@ -200,6 +201,7 @@ func main() {
 
 	cutScene1 := Scene1(Layout)
 	endingScene1 := Ending1(Layout)
+	endingScene2 := Ending2(Layout)
 
 	HanashiScene1 := &HanashiScene{scene: cutScene1}
 	cutScene1.Done = func() {
@@ -216,6 +218,7 @@ func main() {
 	endingScene1.Done = func() {
 		HanashiScene2.director.ProcessTrigger(TriggerToSum)
 	}
+	HanashiScene3 := &HanashiScene{scene: endingScene2}
 
 	state := MyState{
 		PlayerCharacter: NewKnightDecor(),
@@ -237,9 +240,13 @@ func main() {
 		HanashiScene2: []stagehand.Directive[MyState]{
 			stagehand.Directive[MyState]{Dest: summary, Trigger: TriggerToSum, Transition: trans3},
 		},
+		HanashiScene3: []stagehand.Directive[MyState]{
+			stagehand.Directive[MyState]{Dest: summary, Trigger: TriggerToSum, Transition: trans3},
+		},
 		scene1: []stagehand.Directive[MyState]{
 			stagehand.Directive[MyState]{Dest: summary, Trigger: TriggerToSum, Transition: trans3},
 			stagehand.Directive[MyState]{Dest: HanashiScene2, Trigger: TriggerToEnding1, Transition: trans3},
+			stagehand.Directive[MyState]{Dest: HanashiScene3, Trigger: TriggerToEnding2, Transition: trans3},
 		},
 		summary: []stagehand.Directive[MyState]{
 			stagehand.Directive[MyState]{Dest: menuScene, Trigger: TriggerToMenu, Transition: trans2},

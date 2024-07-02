@@ -95,6 +95,10 @@ func (m *MainScene) Update() error {
 	// if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 	// 	fmt.Println(inpututil.MouseButtonPressDuration(ebiten.MouseButtonLeft))
 	// }
+	if !m.musicPlayer.audioPlayer.IsPlaying() {
+		m.musicPlayer.audioPlayer.Rewind()
+		m.musicPlayer.audioPlayer.Play()
+	}
 	isClicked, mouseX, mouseY := IsClickedOrTap()
 	if isClicked && !m.ShowAtk { //inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
 		idxX, idxY := PixelToIndex(mouseX, mouseY)
