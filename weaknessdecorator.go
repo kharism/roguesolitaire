@@ -222,7 +222,22 @@ func (d *RotatingWeaknessDecorator) OnClick(mainScene *MainScene, source Card) {
 	}
 
 }
-func (d *RotatingWeaknessDecorator) DoBattle(*CharacterDecorator, *MainScene) {}
+func (d *RotatingWeaknessDecorator) GetHP() int {
+	return d.decorator.(CharacterInterface).GetHP()
+}
+func (d *RotatingWeaknessDecorator) SetHP(hp int) {
+	d.decorator.(CharacterInterface).SetHP(hp)
+}
+func (d *RotatingWeaknessDecorator) GetMaxHP() int {
+	return d.decorator.(CharacterInterface).GetMaxHP()
+}
+func (d *RotatingWeaknessDecorator) SetMaxHP(hp int) {
+	d.decorator.(CharacterInterface).SetMaxHP(hp)
+}
+func (d *RotatingWeaknessDecorator) GetOnDefeat() OnDefeatFunc {
+	return d.decorator.(CharacterInterface).GetOnDefeat()
+}
+func (d *RotatingWeaknessDecorator) DoBattle(CharacterInterface, *MainScene) {}
 func (t *RotatingWeaknessDecorator) OnPlayerMove(c Card, s *MainScene) {
 	curDirection := t.WeaknessDecorator.Direction
 	// bits.RotateLeft(uint(curDirection), 1)

@@ -53,6 +53,7 @@ type MainScene struct {
 	MonstersDefeated int //
 
 	musicPlayer *AudioPlayer
+	loopMusic   bool
 }
 
 func NewMainScene() *MainScene {
@@ -95,7 +96,8 @@ func (m *MainScene) Update() error {
 	// if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 	// 	fmt.Println(inpututil.MouseButtonPressDuration(ebiten.MouseButtonLeft))
 	// }
-	if !m.musicPlayer.audioPlayer.IsPlaying() {
+	// TODO: FIX THIS: It still update
+	if m.loopMusic && !m.musicPlayer.audioPlayer.IsPlaying() {
 		m.musicPlayer.audioPlayer.Rewind()
 		m.musicPlayer.audioPlayer.Play()
 	}
@@ -200,10 +202,12 @@ func (m *MainScene) OnDefeat() {
 
 }
 func (m *MainScene) OnVictory() {
-	m.State.Victory = true
+	m.isDefeated = false
 	if m.State.Coin <= 80 {
+		m.musicPlayer.audioPlayer.Pause()
 		m.director.ProcessTrigger(TriggerToEnding1)
 	} else {
+		m.musicPlayer.audioPlayer.Pause()
 		m.director.ProcessTrigger(TriggerToSum)
 	}
 
@@ -293,6 +297,7 @@ func (s *MainScene) Load(state MyState, director stagehand.SceneController[MySta
 	s.isDefeated = false
 	s.MonstersDefeated = 0
 	s.CurMovingCard = nil
+	s.loopMusic = true
 	BORDER_X = make([]int, 4)
 	BORDER_Y = make([]int, 4)
 	s.GeneratedBoss = map[string]bool{}
@@ -306,10 +311,14 @@ func (s *MainScene) Load(state MyState, director stagehand.SceneController[MySta
 			yPos := BOARD_START_Y + BASE_CARD_HEIGHT*SCALE_CARD*idx + idx*MARGIN_Y
 			if idx == 1 && idx2 == 1 {
 				pp := NewKnightDecor()
-				SwordedKnight := NewSwordChDecorator(pp.(*CharacterDecorator), 5)
+				SwordedKnight := NewSwordChDecorator(pp.(*CharacterDecorator), 55)
 				s.Character = SwordedKnight.(*SwordChDecorator)
 				s.zones[idx][idx2] = NewBaseCard([]CardDecorator{SwordedKnight}).(*BaseCard)
 				s.CharacterCard = s.zones[idx][idx2]
+			} else if idx == 0 && idx2 == 0 {
+				s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewBrandishMaiden()}).(*BaseCard)
+			} else if idx == 0 && idx2 == 1 {
+				s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewXOrg()}).(*BaseCard)
 			} else {
 				i := rand.Int() % 3
 				if i == 0 {
@@ -357,5 +366,7 @@ func (s *MainScene) Unload() MyState {
 	s.State.Victory = !s.isDefeated
 	s.musicPlayer.audioPlayer.Rewind()
 	s.musicPlayer.audioPlayer.Pause()
+	s.loopMusic = false
+	// s.musicPlayer = nil
 	return *s.State
 }
