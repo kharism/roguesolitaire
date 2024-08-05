@@ -208,7 +208,7 @@ func (m *MainScene) OnVictory() {
 		m.director.ProcessTrigger(TriggerToEnding1)
 	} else {
 		m.musicPlayer.audioPlayer.Pause()
-		m.director.ProcessTrigger(TriggerToSum)
+		m.director.ProcessTrigger(TriggerToEnding2)
 	}
 
 }
@@ -315,10 +315,6 @@ func (s *MainScene) Load(state MyState, director stagehand.SceneController[MySta
 				s.Character = SwordedKnight.(*SwordChDecorator)
 				s.zones[idx][idx2] = NewBaseCard([]CardDecorator{SwordedKnight}).(*BaseCard)
 				s.CharacterCard = s.zones[idx][idx2]
-			} else if idx == 0 && idx2 == 0 {
-				s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewBrandishMaiden()}).(*BaseCard)
-			} else if idx == 0 && idx2 == 1 {
-				s.zones[idx][idx2] = NewBaseCard([]CardDecorator{NewXOrg()}).(*BaseCard)
 			} else {
 				i := rand.Int() % 3
 				if i == 0 {

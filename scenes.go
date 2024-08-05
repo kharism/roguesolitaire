@@ -190,6 +190,28 @@ func Ending2(layouter core.GetLayouter) *core.Scene {
 			// core.NewCharacterMoveEvent("Charlie", core.MoveParam{440, 240, 340, 240, 5}),
 			core.NewDialogueEvent("Charlie", "I've managed to gather 80\ngold coins as you asked", face),
 		}},
+		&core.ComplexEvent{Events: []core.Event{
+			// core.NewCharacterMoveEvent("Charlie", core.MoveParam{440, 240, 340, 240, 5}),
+			core.NewDialogueEvent("Charlie", "Now I demand your hand in\nmarriage", face),
+		}},
+		&core.ComplexEvent{Events: []core.Event{
+			&core.CharacterComplexMoveEvent{Name: "Isolde", AnimationQueue: []core.Animation{
+				core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 220, Speed: 7}),
+				core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 240, Speed: 7}).SetSleepPost(1 * time.Second),
+				core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 220, Speed: 7}),
+				core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 240, Speed: 7}),
+			}},
+			core.NewDialogueEvent("Isolde", "Alright, I should fulfil my\nend of the promise then", face),
+		}},
+		&core.ComplexEvent{Events: []core.Event{
+			&core.CharacterComplexMoveEvent{Name: "Isolde", AnimationQueue: []core.Animation{
+				core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 220, Speed: 7}),
+				core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 240, Speed: 7}).SetSleepPost(1 * time.Second),
+				core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 220, Speed: 7}),
+				core.NewMoveAnimationFromParam(core.MoveParam{Tx: 140, Ty: 240, Speed: 7}),
+			}},
+			core.NewDialogueEvent("Isolde", "now BEND OVER!!!!", face),
+		}},
 	}
 	scene.TxtBg = ebiten.NewImage(640, 200)
 	scene.TxtBg.Fill(color.Black)
