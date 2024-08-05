@@ -219,6 +219,15 @@ func main() {
 		HanashiScene2.director.ProcessTrigger(TriggerToSum)
 	}
 	HanashiScene3 := &HanashiScene{scene: endingScene2}
+	endingScene2.Done = func() {
+		HanashiScene3.director.ProcessTrigger(TriggerToSum)
+	}
+	HanashiScene3.SkipButton = &MenuButton{
+		MovableImage: core.NewMovableImage(BtnBg, core.NewMovableImageParams()),
+		onClickFunc: func() {
+			HanashiScene3.director.ProcessTrigger(TriggerToSum)
+		},
+	}
 
 	state := MyState{
 		PlayerCharacter: NewKnightDecor(),
